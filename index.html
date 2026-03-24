@@ -8,9 +8,17 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:#0a1628;color:#e2f0ff}
-.wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem;background:#0a1628;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:1.5rem 1rem;min-height:100vh}
 h1{font-size:18px;font-weight:700;color:#e2f0ff;margin-bottom:2px}
 .subtitle{font-size:11px;color:#4a7fa5;margin-bottom:1.2rem}
+.csv-bar{background:#0d1f3c;border:1px solid #1a3a5c;border-radius:10px;padding:12px 14px;margin-bottom:1.2rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.csv-bar label{font-size:10px;color:#38bdf8;text-transform:uppercase;letter-spacing:.06em;font-weight:700;flex-shrink:0}
+.csv-input-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex:1}
+.csv-btn{background:#0d2a4a;border:1px solid #38bdf8;color:#38bdf8;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s}
+.csv-btn:hover{background:#1a3a5c}
+.csv-status{font-size:10px;color:#4a7fa5}
+.csv-status.ok{color:#34d399}
+.csv-status.err{color:#f87171}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1.5rem}
 .tab{padding:9px 12px;font-size:10px;font-weight:700;letter-spacing:.04em;cursor:pointer;border-radius:8px;text-transform:uppercase;border:1px solid transparent;transition:all .15s;text-align:center}
 .tab-resumen{background:#0d2240;border-color:#1a4a7a;color:#38bdf8}
@@ -24,13 +32,13 @@ h1{font-size:18px;font-weight:700;color:#e2f0ff;margin-bottom:2px}
 .page{display:none}.page.active{display:block}
 .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.2rem}
 .kpi{background:#0d1f3c;border:1px solid #1a3a5c;border-radius:10px;padding:12px;border-top:3px solid #1a3a5c;position:relative}
-.kpi-label{font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:600}
+.kpi-label{font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-weight:600;line-height:1.3}
 .kpi-value{font-size:17px;font-weight:700;color:#e2f0ff}
 .kpi-sub{font-size:10px;color:#2d5a7a;margin-top:2px}
-.kpi-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:#0d2a4a;border:1px solid #38bdf8;border-radius:8px;padding:10px 12px;font-size:11px;color:#b0cfe0;line-height:1.5;z-index:100;min-width:200px}
+.kpi-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:0;right:0;background:#0d2a4a;border:1px solid #38bdf8;border-radius:8px;padding:10px 12px;font-size:11px;color:#b0cfe0;line-height:1.5;z-index:100;min-width:220px}
 .kpi-tooltip strong{color:#38bdf8}
 .kpi.has-tooltip{cursor:pointer}
-.kpi.has-tooltip:hover .kpi-tooltip,.kpi.has-tooltip.open .kpi-tooltip{display:block}
+.kpi.has-tooltip.open .kpi-tooltip{display:block}
 .section-title{font-size:10px;font-weight:700;color:#38bdf8;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;margin-top:1.4rem}
 .section-title:first-child{margin-top:0}
 .card{background:#0d1f3c;border:1px solid #1a3a5c;border-radius:10px;padding:14px;margin-bottom:12px}
@@ -40,7 +48,7 @@ h1{font-size:18px;font-weight:700;color:#e2f0ff;margin-bottom:2px}
 .summary-row:last-child{margin-bottom:0}
 .summary-key{font-size:10px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
 .summary-val{font-size:14px;font-weight:700;color:#e2f0ff}
-.donut-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.donut-col{display:flex;flex-direction:column;gap:14px}
 .donut-sub-title{font-size:10px;color:#4a7fa5;text-align:center;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
 .leg-wrap{display:flex;flex-direction:column;gap:4px;margin-top:6px}
 .leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#7db4d0}
@@ -116,10 +124,27 @@ h1{font-size:18px;font-weight:700;color:#e2f0ff;margin-bottom:2px}
 .cbar{height:5px;border-radius:3px;background:#132d47;overflow:hidden;margin-top:7px}
 .cfill{height:100%;border-radius:3px}
 .rentab-stack{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.1rem}
-.rentab-card{border-radius:10px;padding:12px;border:1px solid #1a3a5c;background:#091525}
-.rentab-label{font-size:9px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;color:#4a7fa5;font-weight:600}
+.rentab-card{border-radius:10px;padding:12px;border:1px solid #1a3a5c;background:#091525;position:relative}
+.rentab-label{font-size:9px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;color:#4a7fa5;font-weight:600;line-height:1.3}
 .rentab-value{font-size:15px;font-weight:700}
 .rentab-sub{font-size:10px;margin-top:2px;color:#2d5a7a}
+.sim-box{background:#091525;border:1px solid #38bdf8;border-radius:10px;padding:14px;margin-bottom:1.2rem}
+.sim-title{font-size:10px;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.sim-row{display:flex;flex-direction:column;gap:5px}
+.sim-label{font-size:10px;color:#4a7fa5;font-weight:600}
+.sim-slider{width:100%;accent-color:#38bdf8}
+.sim-val{font-size:13px;font-weight:700;color:#e2f0ff}
+.sim-results{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:12px;border-top:1px solid #1a3a5c}
+.sim-res-card{background:#0d1f3c;border-radius:8px;padding:10px;border:1px solid #1a3a5c}
+.sim-res-label{font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;font-weight:600}
+.sim-res-val{font-size:14px;font-weight:700}
+.sim-res-delta{font-size:10px;margin-top:2px}
+.sim-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
+.sim-table th{text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid #1a3a5c}
+.sim-table td{padding:6px 8px;border-bottom:1px solid #132d47;color:#b0cfe0}
+.sim-table tr:last-child td{border-bottom:none}
+.sim-section-label{font-size:9px;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:.06em;margin:10px 0 5px;padding:4px 0;border-bottom:1px solid #1a3a5c}
 .divider{border:none;border-top:1px solid #1a3a5c;margin:1.2rem 0}
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;font-size:11px;min-width:300px}
@@ -140,17 +165,29 @@ tr:hover td{background:#0d1f3c}
   .charts-row .card{margin-bottom:0}
   .fin-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .costo-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .sim-grid{grid-template-columns:repeat(2,1fr)}
+  .sim-results{grid-template-columns:repeat(4,1fr)}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Dashboard Inmobiliario</h1>
-  <p class="subtitle">Actualizado al 22/03/2026</p>
+  <p class="subtitle" id="dash-subtitle">Cargando datos...</p>
+  <div class="csv-bar">
+    <label>Actualizar datos</label>
+    <div class="csv-input-wrap">
+      <input type="file" id="csv-unidades" accept=".csv" style="display:none">
+      <input type="file" id="csv-cocheras" accept=".csv" style="display:none">
+      <button class="csv-btn" onclick="document.getElementById('csv-unidades').click()">Subir datos.csv</button>
+      <button class="csv-btn" onclick="document.getElementById('csv-cocheras').click()">Subir cocheras.csv</button>
+      <span class="csv-status" id="csv-status">Usando datos del repositorio</span>
+    </div>
+  </div>
   <div class="tabs">
     <div class="tab tab-resumen active" onclick="showTab('resumen')">Resumen</div>
     <div class="tab tab-unidades" onclick="showTab('unidades')">Unidades</div>
-    <div class="tab tab-cb" onclick="showTab('cb')">Cocheras</div>
+    <div class="tab tab-cb" onclick="showTab('cb')">Cocheras y bauleras</div>
     <div class="tab tab-finanzas" onclick="showTab('finanzas')">Finanzas</div>
   </div>
 
@@ -161,12 +198,12 @@ tr:hover td{background:#0d1f3c}
         <div class="card-title">Ventas: Unidades + Cocheras</div>
         <div class="summary-block" id="summary-total"></div>
         <div class="donut-col">
-          <div><div class="donut-sub-title">Unidades</div><div style="position:relative;height:110px"><canvas id="donut-unidades"></canvas></div><div id="leg-unidades" class="leg-wrap"></div></div>
+          <div><div class="donut-sub-title">Unidades funcionales</div><div style="position:relative;height:110px"><canvas id="donut-unidades"></canvas></div><div id="leg-unidades" class="leg-wrap"></div></div>
           <div><div class="donut-sub-title">Cocheras</div><div style="position:relative;height:110px"><canvas id="donut-cocheras"></canvas></div><div id="leg-cocheras" class="leg-wrap"></div></div>
         </div>
       </div>
       <div class="card">
-        <div class="card-title">Velocidad de ventas</div>
+        <div class="card-title">Seguimiento de ventas en el tiempo</div>
         <div style="position:relative;height:200px"><canvas id="chart-scatter"></canvas></div>
       </div>
     </div>
@@ -212,164 +249,376 @@ tr:hover td{background:#0d1f3c}
     <div class="section-title" style="margin-top:0">Rentabilidad estimada</div>
     <div class="rentab-stack" id="rentab-grid"></div>
     <hr class="divider">
+    <div class="section-title" style="margin-top:0">Simulador de escenarios</div>
+    <div class="sim-box">
+      <div class="sim-title">Ajustá costos y precios para simular escenarios</div>
+      <div class="sim-grid">
+        <div class="sim-row">
+          <div class="sim-label">Variación de costos</div>
+          <input type="range" class="sim-slider" id="sim-costos" min="-30" max="50" value="0" step="1" oninput="updateSim()">
+          <div class="sim-val" id="sim-costos-val">0%</div>
+        </div>
+        <div class="sim-row">
+          <div class="sim-label">Variación de precios de venta</div>
+          <input type="range" class="sim-slider" id="sim-precios" min="-30" max="50" value="0" step="1" oninput="updateSim()">
+          <div class="sim-val" id="sim-precios-val">0%</div>
+        </div>
+      </div>
+      <div class="sim-results" id="sim-results"></div>
+      <div id="sim-precios-tabla"></div>
+    </div>
+    <hr class="divider">
     <div class="section-title" style="margin-top:0">Detalle por unidad vendida</div>
     <div class="tbl-wrap"><table><thead><tr><th>Unidad</th><th>Precio</th><th>Cobrado</th><th>Pendiente</th><th>%</th></tr></thead><tbody id="finance-tbody"></tbody></table></div>
   </div>
 </div>
 
 <script>
-const CP={C1:25000,C2:27000,C3:25000,C4:27000,C5:27000,C6:27000,C7:27000,C8:27000,C9:25000,C10:25000,C11:27000,C12:27000,C13:27000,C14:27000,C15:27000,C16:27000};
-const APORTE=920000;
-const UU=[
-  {id:"1",  piso:"PB",lado:"frente",      tipo:"2 amb",m2:84.94, precio:257408,pc:0,    est:"vendida",   cli:"Juan Pablo Laclau",fecha:"2025-07-11",cob:257408,coch:"incluida",bau:"B1"},
-  {id:"2",  piso:"PB",lado:"frente",      tipo:"3 amb",m2:125.45,precio:374496,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:"incluida",bau:null},
-  {id:"3",  piso:"PB",lado:"contrafrente",tipo:"1 amb",m2:65.52, precio:196699,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"4",  piso:"PB",lado:"contrafrente",tipo:"4 amb",m2:202.59,precio:601791,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"101",piso:"1P",lado:"frente",      tipo:"3 amb",m2:87.76, precio:276950,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"102",piso:"1P",lado:"frente",      tipo:"2 amb",m2:63.26, precio:203618,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"103",piso:"1P",lado:"frente",      tipo:"1 amb",m2:47.63, precio:151261,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"104",piso:"1P",lado:"contrafrente",tipo:"1 amb",m2:47.63, precio:130000,pc:0,    est:"vendida",   cli:"Leo Calderoni",    fecha:"2025-08-21",cob:96982, coch:null, bau:"B13"},
-  {id:"105",piso:"1P",lado:"contrafrente",tipo:"2 amb",m2:63.26, precio:180000,pc:0,    est:"vendida",   cli:"Diego y Alberto",  fecha:"2025-07-11",cob:180000,coch:null, bau:"B5"},
-  {id:"106",piso:"1P",lado:"contrafrente",tipo:"3 amb",m2:87.76, precio:279688,pc:25000,est:"vendida",   cli:"Edgardo",          fecha:"2026-03-13",cob:125000,coch:"C9", bau:"B9"},
-  {id:"201",piso:"2P",lado:"frente",      tipo:"3 amb",m2:87.76, precio:288812,pc:25000,est:"vendida",   cli:"Nacho Morrone",    fecha:"2026-03-20",cob:249000,coch:"C3", bau:"B2"},
-  {id:"202",piso:"2P",lado:"frente",      tipo:"2 amb",m2:63.26, precio:210424,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"203",piso:"2P",lado:"frente",      tipo:"1 amb",m2:47.63, precio:154346,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"204",piso:"2P",lado:"contrafrente",tipo:"1 amb",m2:47.63, precio:155375,pc:0,    est:"disponible",cli:null,fecha:null,cob:0,coch:null,bau:null},
-  {id:"205",piso:"2P",lado:"contrafrente",tipo:"2 amb",m2:63.26, precio:213828,pc:25000,est:"vendida",   cli:"Amalia Vilella",   fecha:"2025-12-19",cob:90884, coch:"C1", bau:"B10"},
-  {id:"206",piso:"2P",lado:"contrafrente",tipo:"3 amb",m2:87.76, precio:293375,pc:25000,est:"vendida",   cli:"Pascual Gargano",  fecha:"2025-12-19",cob:127197,coch:"C10",bau:"B12"},
+const DEFAULT_UNIDADES=[
+  {id:"1",  piso:"Planta Baja",  lado:"Frente",      tipo:"2 amb",m2:84.94, precio:257408,pc:0,    est:"Vendida",   cli:"Juan Pablo Laclau",fecha:"2025-07-11",cob:257408,coch:"Incluida",bau:"B1"},
+  {id:"2",  piso:"Planta Baja",  lado:"Frente",      tipo:"3 amb",m2:125.45,precio:374496,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"Incluida",bau:""},
+  {id:"3",  piso:"Planta Baja",  lado:"Contrafrente",tipo:"1 amb",m2:65.52, precio:196699,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"4",  piso:"Planta Baja",  lado:"Contrafrente",tipo:"4 amb",m2:202.59,precio:601791,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"101",piso:"Primer Piso",  lado:"Frente",      tipo:"3 amb",m2:87.76, precio:276950,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"102",piso:"Primer Piso",  lado:"Frente",      tipo:"2 amb",m2:63.26, precio:203618,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"103",piso:"Primer Piso",  lado:"Frente",      tipo:"1 amb",m2:47.63, precio:151261,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"104",piso:"Primer Piso",  lado:"Contrafrente",tipo:"1 amb",m2:47.63, precio:130000,pc:0,    est:"Vendida",   cli:"Leo Calderoni",   fecha:"2025-08-21",cob:96982, coch:"",   bau:"B13"},
+  {id:"105",piso:"Primer Piso",  lado:"Contrafrente",tipo:"2 amb",m2:63.26, precio:180000,pc:0,    est:"Vendida",   cli:"Diego y Alberto", fecha:"2025-07-11",cob:180000,coch:"",   bau:"B5"},
+  {id:"106",piso:"Primer Piso",  lado:"Contrafrente",tipo:"3 amb",m2:87.76, precio:279688,pc:25000,est:"Vendida",   cli:"Edgardo",         fecha:"2026-03-13",cob:125000,coch:"C9", bau:"B9"},
+  {id:"201",piso:"Segundo Piso", lado:"Frente",      tipo:"3 amb",m2:87.76, precio:288812,pc:25000,est:"Vendida",   cli:"Nacho Morrone",   fecha:"2026-03-20",cob:249000,coch:"C3", bau:"B2"},
+  {id:"202",piso:"Segundo Piso", lado:"Frente",      tipo:"2 amb",m2:63.26, precio:210424,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"203",piso:"Segundo Piso", lado:"Frente",      tipo:"1 amb",m2:47.63, precio:154346,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"204",piso:"Segundo Piso", lado:"Contrafrente",tipo:"1 amb",m2:47.63, precio:155375,pc:0,    est:"Disponible",cli:"",fecha:"",cob:0,coch:"",bau:""},
+  {id:"205",piso:"Segundo Piso", lado:"Contrafrente",tipo:"2 amb",m2:63.26, precio:213828,pc:25000,est:"Vendida",   cli:"Amalia Vilella",  fecha:"2025-12-19",cob:90884, coch:"C1", bau:"B10"},
+  {id:"206",piso:"Segundo Piso", lado:"Contrafrente",tipo:"3 amb",m2:87.76, precio:293375,pc:25000,est:"Vendida",   cli:"Pascual Gargano", fecha:"2025-12-19",cob:127197,coch:"C10",bau:"B12"},
+];
+const DEFAULT_COCHERAS=[
+  {id:"C1",precio:25000},{id:"C2",precio:27000},{id:"C3",precio:25000},{id:"C4",precio:27000},
+  {id:"C5",precio:27000},{id:"C6",precio:27000},{id:"C7",precio:27000},{id:"C8",precio:27000},
+  {id:"C9",precio:25000},{id:"C10",precio:25000},{id:"C11",precio:27000},{id:"C12",precio:27000},
+  {id:"C13",precio:27000},{id:"C14",precio:27000},{id:"C15",precio:27000},{id:"C16",precio:27000},
 ];
 const COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
-const PN={PB:"Planta Baja","1P":"Primer Piso","2P":"Segundo Piso"};
-function fmt(n){return"USD "+Math.round(n).toLocaleString();}
+const APORTE=920000;
+
+let UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
+let COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
+let donutU=null,donutC=null,scatterC=null,barC=null;
+
+function parseCSV(text){
+  const lines=text.trim().split('\n').map(l=>l.trim()).filter(l=>l);
+  const headers=lines[0].split(',').map(h=>h.trim());
+  return lines.slice(1).map(line=>{
+    const vals=line.split(',').map(v=>v.trim());
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return obj;
+  });
+}
+function loadUnidadesCSV(rows){
+  UU=rows.map(r=>({
+    id:r['ID Unidad'],piso:r['Piso'],lado:r['Orientación'],tipo:r['Tipo'],
+    m2:parseFloat(r['Sup. (m²)'])||0,precio:parseFloat(r['Precio unidad (USD)'])||0,
+    pc:parseFloat(r['Precio cochera (USD)'])||0,est:r['Estado'],cli:r['Comprador'],
+    fecha:r['Fecha operación'],cob:parseFloat(r['Cobrado hasta hoy (USD)'])||0,
+    coch:r['Cochera asig.'],bau:r['Baulera asig.'],
+  }));
+}
+function loadCocherasCSV(rows){
+  COCHERAS_DATA=rows.map(r=>({id:r['ID Cochera'],precio:parseFloat(r['Precio (USD)'])||0}));
+}
+function setupFileInput(inputId,type){
+  document.getElementById(inputId).addEventListener('change',function(e){
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        const rows=parseCSV(ev.target.result);
+        if(type==='unidades')loadUnidadesCSV(rows);else loadCocherasCSV(rows);
+        renderAll();
+        const st=document.getElementById('csv-status');
+        st.textContent=`✓ ${file.name} cargado`;st.className='csv-status ok';
+      }catch(err){
+        const st=document.getElementById('csv-status');
+        st.textContent=`Error al leer ${file.name}`;st.className='csv-status err';
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function fmt(n){return'USD '+Math.round(n).toLocaleString();}
 function pct(a,b){return b>0?Math.round(a/b*100):0;}
-function mkLeg(id,items){document.getElementById(id).innerHTML=items.map(([l,c,v])=>`<span class="leg-item"><span class="leg-dot" style="background:${c}"></span>${l}${v!==null?`: <strong style="color:#e2f0ff;margin-left:2px">${v}</strong>`:""}</span>`).join("");}
-
-const VV=UU.filter(u=>u.est==="vendida");
-const DD=UU.filter(u=>u.est==="disponible");
-const TV=VV.reduce((s,u)=>s+u.precio+u.pc,0);
-const TC=VV.reduce((s,u)=>s+u.cob,0);
-const TP=TV-TC;
-const POT=DD.reduce((s,u)=>s+u.precio,0);
-const TPROY=TV+POT;
-const M2V=VV.reduce((s,u)=>s+u.m2,0);
-const M2D=DD.reduce((s,u)=>s+u.m2,0);
-const CEJ=COSTOS.terreno.ej+COSTOS.resto.ej;
-const CPR=COSTOS.terreno.pr+COSTOS.resto.pr;
-const CT=CEJ+CPR;
-const MARPROY=TPROY-CT;
-const MARPCT=Math.round(MARPROY/APORTE*100);
-const TOTCOCH=16;
-const CVEND=UU.filter(u=>u.est==="vendida"&&u.coch&&u.coch!=="incluida").length;
-const CDISP=TOTCOCH-CVEND;
-const AVGCOCH=Object.values(CP).reduce((s,v)=>s+v,0)/16;
-const TCONC=TV+POT+CDISP*AVGCOCH;
-const PCTUS=pct(TV,TCONC);
-const RESTA=TCONC-TV;
-const VF=VV.filter(u=>u.fecha).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
-const P1=new Date(VF[0].fecha);
-const HOY=new Date("2026-03-22");
-const TMES=Math.max(1,Math.ceil((HOY-P1)/(1000*60*60*24*30.44)));
-const VEL=(VV.length/TMES).toFixed(1);
-const PM2V=Math.round(TV/M2V);
-const PM2T=Math.round(TPROY/(M2V+M2D));
-
-// ── KPI ──
-document.getElementById("kpi-top").innerHTML=`
-  <div class="kpi" style="border-top-color:#6ee7b7">
-    <div class="kpi-label">Unidades vendidas</div>
-    <div class="kpi-value" style="color:#6ee7b7">${VV.length}/${UU.length}</div>
-    <div class="kpi-sub">${pct(VV.length,UU.length)}% del total</div>
-  </div>
-  <div class="kpi" style="border-top-color:#fbbf24">
-    <div class="kpi-label">Precio promedio x m²</div>
-    <div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div>
-    <div class="kpi-sub">Promedio del proyecto: ${fmt(PM2T)}</div>
-  </div>
-  <div class="kpi" style="border-top-color:#fbbf24">
-    <div class="kpi-label">Velocidad ventas</div>
-    <div class="kpi-value" style="color:#fbbf24">${VEL}<span style="font-size:11px;font-weight:400;color:#4a7fa5"> u/mes</span></div>
-    <div class="kpi-sub">${VV.length} en ${TMES} meses</div>
-  </div>
-  <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')">
-    <div class="kpi-label">Margen de ganancia sobre costo total proyectado</div>
-    <div class="kpi-value" style="color:${MARPROY>=0?"#6ee7b7":"#f87171"}">${pct(MARPROY,CT)}%</div>
-    <div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> del proyecto (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>costo total proyectado</strong> (<strong>${fmt(CT)}</strong>).</div>
-  </div>
-  <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')">
-    <div class="kpi-label">Margen de ganancia sobre aporte de los socios</div>
-    <div class="kpi-value" style="color:${MARPCT>=0?"#6ee7b7":"#f87171"}">${MARPCT}%</div>
-    <div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> del proyecto (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>aporte realizado por los socios</strong> (<strong>${fmt(APORTE)}</strong>).</div>
-  </div>
-`;
-
-// ── SUMMARY ──
-document.getElementById("summary-total").innerHTML=`
-  <div class="summary-row"><span class="summary-key">Vendido / total proyecto</span><span class="summary-val" style="color:#6ee7b7">${PCTUS}%</span></div>
-  <div class="summary-row" style="margin-top:4px"><span class="summary-key">Total vendido</span><span class="summary-val" style="font-size:12px">${fmt(TV)}</span></div>
-  <div class="summary-row" style="margin-top:2px"><span class="summary-key">Total proyecto</span><span class="summary-val" style="font-size:12px;color:#4a7fa5">${fmt(TCONC)}</span></div>
-  <div class="summary-row" style="margin-top:2px;border-top:1px solid #1a3a5c;padding-top:5px"><span class="summary-key">Resta vender</span><span class="summary-val" style="font-size:12px;color:#f87171">${fmt(RESTA)}</span></div>
-`;
-
-function mkDonut(id,data,labels,colors){new Chart(document.getElementById(id),{type:"doughnut",data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.toLocaleString()}`}}}}});}
-mkDonut("donut-unidades",[VV.length,DD.length],["Vendidas","Disponibles"],["#6ee7b7","#38bdf8"]);
-mkLeg("leg-unidades",[["Vendidas","#6ee7b7",VV.length],["Disp.","#38bdf8",DD.length]]);
-mkDonut("donut-cocheras",[CVEND,CDISP],["Vendidas","Disponibles"],["#6ee7b7","#38bdf8"]);
-mkLeg("leg-cocheras",[["Vendidas","#6ee7b7",CVEND],["Disp.","#38bdf8",CDISP]]);
-
-// ── SCATTER ──
-const ML=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-let ac=0;
-const SD=VF.map(u=>{ac++;const d=new Date(u.fecha);return{x:parseFloat(((d-P1)/(1000*60*60*24*30.44)).toFixed(2)),y:ac,label:u.cli,fecha:u.fecha};});
-new Chart(document.getElementById("chart-scatter"),{type:"scatter",data:{datasets:[{data:SD,backgroundColor:"#fbbf24",pointRadius:6,pointHoverRadius:8,pointBorderColor:"#0a1628",pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return[`${d.label}`,`${d.fecha}`,`Nº${d.y}`];}}}},scales:{x:{title:{display:true,text:"Meses desde primera venta",color:"#4a7fa5",font:{size:10}},min:0,max:TMES,ticks:{color:"#4a7fa5",font:{size:9},stepSize:1,maxRotation:45,callback:v=>{const d=new Date(P1);d.setMonth(d.getMonth()+v);return ML[d.getMonth()]+"'"+d.getFullYear().toString().slice(2);}},grid:{color:"rgba(26,58,92,0.6)"}},y:{min:0,max:VV.length+1,ticks:{color:"#4a7fa5",font:{size:10},stepSize:1,precision:0},grid:{color:"rgba(26,58,92,0.6)"}}}}});
-
-// ── COBRO POR COMPRADOR ──
-const COMP=VV.map(u=>({n:u.cli,c:u.cob,t:u.precio+u.pc})).sort((a,b)=>b.c/b.t-a.c/a.t);
-document.getElementById("chart-cobro-wrap").style.height=(COMP.length*44+50)+"px";
-new Chart(document.getElementById("chart-cobro"),{type:"bar",data:{labels:COMP.map(c=>c.n),datasets:[{label:"Cobrado",data:COMP.map(c=>c.c),backgroundColor:"#0891b2",borderRadius:3,borderSkipped:false},{label:"Pendiente",data:COMP.map(c=>c.t-c.c),backgroundColor:"#1e3a5c",borderRadius:3,borderSkipped:false}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.x)}`}}},scales:{x:{stacked:true,grid:{color:"rgba(26,58,92,0.5)"},ticks:{color:"#4a7fa5",font:{size:9},callback:v=>"$"+(v/1000).toFixed(0)+"k"}},y:{stacked:true,grid:{display:false},ticks:{color:"#b0cfe0",font:{size:10}}}}}});
-document.getElementById("leg-cobro-bar").innerHTML=`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#0891b2"></span>Cobrado</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1e3a5c"></span>Pendiente</span>`;
-
-// ── UNIDADES ──
-document.getElementById("metrics-unidades").innerHTML=`
-  <div class="kpi" style="border-top-color:#38bdf8"><div class="kpi-label">Total</div><div class="kpi-value">${UU.length}</div></div>
-  <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Vendidas</div><div class="kpi-value" style="color:#6ee7b7">${VV.length}</div><div class="kpi-sub">${pct(VV.length,UU.length)}%</div></div>
-  <div class="kpi" style="border-top-color:#38bdf8"><div class="kpi-label">Disponibles</div><div class="kpi-value" style="color:#7dd3fc">${DD.length}</div><div class="kpi-sub">${pct(DD.length,UU.length)}%</div></div>
-`;
-let AUI=null;
-["PB","1P","2P"].forEach(p=>{
-  const fr=UU.filter(u=>u.piso===p&&u.lado==="frente");
-  const cf=UU.filter(u=>u.piso===p&&u.lado==="contrafrente");
-  const ru=arr=>arr.map(u=>`<div class="unit ${u.est}" onclick="toggleUnit('${u.id}')"><div class="unit-num">Unidad ${u.id}</div><div class="unit-info">${u.tipo} · ${u.m2}m²</div>${u.est==="vendida"?`<div class="unit-cliente">${u.cli}</div>`:""}<div class="unit-badges">${u.coch==="incluida"?`<span class="mb mb-c">C incl.</span>`:(u.coch?`<span class="mb mb-c">${u.coch}</span>`:"")}${u.bau?`<span class="mb mb-b">${u.bau}</span>`:""}</div></div>`).join("");
-  const div=document.createElement("div");div.className="floor";
-  div.innerHTML=`<div class="floor-header">${PN[p]}</div><div class="floor-sides"><div><div class="side-label">Frente</div><div class="units">${ru(fr)}</div></div><div><div class="side-label">Contrafrente</div><div class="units">${ru(cf)}</div></div></div>`;
-  document.getElementById("floors").appendChild(div);
-});
-function toggleUnit(id){const panel=document.getElementById("detail-panel");if(AUI===id){panel.classList.add("hidden");AUI=null;return;}AUI=id;const u=UU.find(x=>x.id===id);const pt=u.precio+u.pc,pend=pt-u.cob,p=pt>0?pct(u.cob,pt):0;const ct=u.coch==="incluida"?"Cochera incluida":u.coch?u.coch:"Sin cochera";document.getElementById("detail-title").textContent=`Unidad ${u.id} — ${u.tipo}`;document.getElementById("detail-body").innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${u.est}">${u.est==="vendida"?"Vendida":"Disponible"}</span></span></div><div class="drow"><span class="dkey">Piso/orientación</span><span class="dval">${PN[u.piso]} · ${u.lado.charAt(0).toUpperCase()+u.lado.slice(1)}</span></div><div class="drow"><span class="dkey">Superficie</span><span class="dval">${u.m2} m²</span></div><div class="drow"><span class="dkey">Precio unidad</span><span class="dval">${fmt(u.precio)}</span></div>${u.pc?`<div class="drow"><span class="dkey">Precio cochera</span><span class="dval">${fmt(u.pc)}</span></div>`:""}<div class="drow"><span class="dkey">Precio total</span><span class="dval">${fmt(pt)}</span></div><div class="drow"><span class="dkey">Cobrado</span><span class="dval" style="color:#34d399">${fmt(u.cob)} (${p}%)</span></div><div class="drow"><span class="dkey">Pendiente</span><span class="dval" style="color:${pend>0?"#f87171":"#34d399"}">${fmt(pend)}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${u.cli||"—"}</span></div><div class="drow"><span class="dkey">Fecha</span><span class="dval">${u.fecha||"—"}</span></div><div class="drow"><span class="dkey">Cochera</span><span class="dval">${ct}</span></div><div class="drow"><span class="dkey">Baulera</span><span class="dval">${u.bau||"Sin asignar"}</span></div>`;panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth",block:"nearest"});}
-
-// ── CB ──
-const CL=Array.from({length:16},(_,i)=>{const id=`C${i+1}`;const a=UU.find(u=>u.coch===id);return{id,precio:CP[id]||0,est:a?"vendida":"disponible",unidad:a?a.id:null,cli:a?a.cli:null};});
-const BL=Array.from({length:16},(_,i)=>{const id=`B${i+1}`;const a=UU.find(u=>u.bau===id);return{id,est:a?"asignada":"libre",unidad:a?a.id:null};});
-document.getElementById("metrics-cb").innerHTML=`<div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Cocheras vend.</div><div class="kpi-value" style="color:#6ee7b7">${CL.filter(c=>c.est==="vendida").length}</div><div class="kpi-sub">${CDISP} disp.</div></div><div class="kpi" style="border-top-color:#c4b5fd"><div class="kpi-label">Bauleras asig.</div><div class="kpi-value" style="color:#c4b5fd">${BL.filter(b=>b.est==="asignada").length}</div><div class="kpi-sub">${BL.filter(b=>b.est==="libre").length} libres</div></div><div class="kpi" style="border-top-color:#38bdf8"><div class="kpi-label">Sin cochera</div><div class="kpi-value">${UU.filter(u=>u.est==="vendida"&&!u.coch).length}</div><div class="kpi-sub">compradores</div></div>`;
-BL.forEach(b=>{const d=document.createElement("div");d.className=`bau-cell ${b.est}`;d.innerHTML=`<div>${b.id}</div>${b.unidad?`<div style="font-size:8px;margin-top:1px">${b.unidad}</div>`:""}`;document.getElementById("baulera-grid").appendChild(d);});
-let ACI=null;
-CL.forEach(c=>{const d=document.createElement("div");d.className=`park-cell ${c.est}`;d.innerHTML=`<div class="park-num">${c.id}</div><div class="park-sub">${c.est==="vendida"?c.unidad:"Libre"}</div>`;d.onclick=()=>{const panel=document.getElementById("cochera-panel");if(ACI===c.id){panel.classList.add("hidden");ACI=null;return;}ACI=c.id;document.getElementById("cochera-panel-title").textContent=`Cochera ${c.id}`;document.getElementById("cochera-body").innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${c.est==="vendida"?"vendida":"disponible"}">${c.est==="vendida"?"Vendida":"Disponible"}</span></span></div><div class="drow"><span class="dkey">Precio</span><span class="dval">${fmt(c.precio)}</span></div><div class="drow"><span class="dkey">Unidad</span><span class="dval">${c.unidad||"—"}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${c.cli||"—"}</span></div>`;panel.classList.remove("hidden");};document.getElementById("parking-grid").appendChild(d);});
-let cbH="";UU.filter(u=>u.est==="vendida").forEach(u=>{const ct=u.coch==="incluida"?`<span style="background:#451a03;color:#fbbf24;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">Incl.</span>`:u.coch?`<span style="background:#451a03;color:#fbbf24;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">${u.coch}</span>`:"<span style='color:#2d5a7a'>—</span>";cbH+=`<tr><td>${u.id}</td><td>${u.cli}</td><td>${ct}</td><td>${u.bau?`<span style="background:#2e1065;color:#c4b5fd;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">${u.bau}</span>`:"<span style='color:#2d5a7a'>—</span>"}</td></tr>`;});
-document.getElementById("cb-tbody").innerHTML=cbH;
-
-// ── FINANZAS ──
-document.getElementById("fin-cards").innerHTML=`<div class="fin-card"><div class="fin-card-label">Total vendido</div><div class="fin-card-value">${fmt(TV)}</div><div class="fin-card-sub">${VV.length} unidades · incluye cocheras</div></div><div class="fin-card"><div class="fin-card-label">Total cobrado</div><div class="fin-card-value" style="color:#34d399">${fmt(TC)}</div><div class="fin-card-sub">${pct(TC,TV)}% del total vendido</div></div><div class="fin-card"><div class="fin-card-label">Pendiente de cobro</div><div class="fin-card-value" style="color:#f87171">${fmt(TP)}</div><div class="fin-card-sub">${100-pct(TC,TV)}% aún no ingresado</div></div><div class="fin-card"><div class="fin-card-label">Total de venta (proyecto)</div><div class="fin-card-value">${fmt(TPROY)}</div><div class="fin-card-sub">Vendido + disponible</div></div><div class="fin-card"><div class="fin-card-label">Total a vender</div><div class="fin-card-value" style="color:#7dd3fc">${fmt(POT)}</div><div class="fin-card-sub">${DD.length} unidades disponibles</div></div>`;
+function mkLeg(id,items){document.getElementById(id).innerHTML=items.map(([l,c,v])=>`<span class="leg-item"><span class="leg-dot" style="background:${c}"></span>${l}${v!==null?`: <strong style="color:#e2f0ff;margin-left:2px">${v}</strong>`:''}</span>`).join('');}
+function mkDonut(canvas,data,labels,colors){return new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.toLocaleString()}`}}}}});}
 function segBar(el,title,gv,rv,tot,gl,rl){const pG=pct(gv,tot),pR=pct(rv,tot);document.getElementById(el).innerHTML=`<div class="seg-title">${title}</div><div class="seg-track"><div class="seg-g" style="width:${pG}%"><span class="seg-lbl">${fmt(gv)}</span></div><div class="seg-r" style="width:${pR}%"><span class="seg-lbl">${fmt(rv)}</span></div></div><div class="seg-legend"><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#0891b2"></div>${gl} (${pG}%)</div><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#be185d"></div>${rl} (${pR}%)</div></div>`;}
-segBar("bar-vendido","Cobrado vs. pendiente — sobre total vendido",TC,TP,TV,"Cobrado","Pendiente");
-segBar("bar-total","Cobrado vs. pendiente — sobre total del proyecto",TC,TPROY-TC,TPROY,"Cobrado","Por ingresar");
-function costCard(tit,ej,pr){const tot=ej+pr,p=tot>0?pct(ej,tot):100;return`<div class="costo-card"><div class="costo-title">${tit}</div><div class="crow"><span class="ckey">Ejecutado</span><span class="cval" style="color:#34d399">${fmt(ej)}</span></div><div class="crow"><span class="ckey">Proyectado restante</span><span class="cval" style="color:#fbbf24">${fmt(pr)}</span></div><div class="crow"><span class="ckey">Total</span><span class="cval">${fmt(tot)}</span></div><div class="cbar"><div class="cfill" style="width:${p}%;background:#0891b2"></div></div><div style="font-size:9px;color:#2d5a7a;margin-top:5px">${p}% ejecutado</div></div>`;}
-document.getElementById("costos-grid").innerHTML=costCard("Terreno",COSTOS.terreno.ej,COSTOS.terreno.pr)+costCard("Resto de costos",COSTOS.resto.ej,COSTOS.resto.pr);
 function segBarC(el,title,gv,rv,tot){const pG=pct(gv,tot),pR=pct(rv,tot);document.getElementById(el).innerHTML=`<div class="seg-title">${title}</div><div class="seg-track"><div style="background:#0891b2;height:100%;width:${pG}%;display:flex;align-items:center;min-width:2px"><span class="seg-lbl">${fmt(gv)}</span></div><div style="background:#fbbf24;height:100%;flex:1;display:flex;align-items:center;justify-content:flex-end"><span class="seg-lbl">${fmt(rv)}</span></div></div><div class="seg-legend"><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#0891b2"></div>Ejecutado (${pG}%)</div><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#fbbf24"></div>Proy. restante (${pR}%)</div></div>`;}
-segBarC("bar-costos-con","Costos ejecutados vs. proyectados — total (incl. terreno)",CEJ,CPR,CT);
-segBarC("bar-costos-sin","Costos ejecutados vs. proyectados — total (sin terreno)",COSTOS.resto.ej,COSTOS.resto.pr,COSTOS.resto.ej+COSTOS.resto.pr);
-const MA=TC-CEJ;
-document.getElementById("rentab-grid").innerHTML=`<div class="rentab-card"><div class="rentab-label">Total de venta</div><div class="rentab-value" style="color:#e2f0ff;font-size:13px">${fmt(TPROY)}</div><div class="rentab-sub">Vendido + disponible</div></div><div class="rentab-card"><div class="rentab-label">Costo total</div><div class="rentab-value" style="color:#e2f0ff;font-size:13px">${fmt(CT)}</div><div class="rentab-sub">${fmt(CEJ)} ejec.</div></div><div class="rentab-card"><div class="rentab-label">Margen s/costo total</div><div class="rentab-value" style="color:${MARPROY>=0?"#34d399":"#f87171"};font-size:13px">${fmt(MARPROY)}</div><div class="rentab-sub">${pct(MARPROY,CT)}% sobre costo</div></div><div class="rentab-card"><div class="rentab-label">Margen actual</div><div class="rentab-value" style="color:${MA>=0?"#34d399":"#f87171"};font-size:13px">${fmt(MA)}</div><div class="rentab-sub">${pct(Math.abs(MA),TC)}% ${MA>=0?"sobre cobrado":"neg."}</div></div>`;
-let ftH="";VV.forEach(u=>{const pt=u.precio+u.pc,pend=pt-u.cob,p=pct(u.cob,pt);ftH+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong><br><span style="font-size:10px;color:#4a7fa5">${u.cli}</span></td><td>${fmt(pt)}</td><td style="color:#34d399;font-weight:600">${fmt(u.cob)}</td><td style="color:${pend>0?"#f87171":"#34d399"};font-weight:600">${fmt(pend)}</td><td><span style="font-size:10px;color:#b0cfe0;font-weight:600">${p}%</span></td></tr>`;});
-document.getElementById("finance-tbody").innerHTML=ftH;
-function showTab(t){document.querySelectorAll(".tab").forEach(el=>el.classList.remove("active"));document.querySelectorAll(".page").forEach(el=>el.classList.remove("active"));document.querySelector(`.tab[onclick="showTab('${t}')"]`).classList.add("active");document.getElementById(`page-${t}`).classList.add("active");}
+
+function calcMeses(VV){
+  const VF=VV.filter(u=>u.fecha).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  if(!VF.length)return 1;
+  return Math.max(1,Math.ceil((new Date()-new Date(VF[0].fecha))/(1000*60*60*24*30.44)));
+}
+
+function renderAll(){
+  const VV=UU.filter(u=>u.est==='Vendida');
+  const DD=UU.filter(u=>u.est==='Disponible');
+  const CP={};COCHERAS_DATA.forEach(c=>CP[c.id]=c.precio);
+
+  // Total vendido = precio unidades vendidas + precio cocheras vendidas (excluye "Incluida")
+  const cochVendIds=VV.filter(u=>u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
+  const precioCochVend=COCHERAS_DATA.filter(c=>cochVendIds.includes(c.id)).reduce((s,c)=>s+c.precio,0);
+  const TV=VV.reduce((s,u)=>s+u.precio,0)+precioCochVend;
+  const TC=VV.reduce((s,u)=>s+u.cob,0);
+  const TP=TV-TC;
+
+  // Total proyecto = suma TODOS los precios de unidades + suma TODOS los precios de cocheras
+  const TOTAL_U=UU.reduce((s,u)=>s+u.precio,0);
+  const TOTAL_C=COCHERAS_DATA.reduce((s,c)=>s+c.precio,0);
+  const TPROY=TOTAL_U+TOTAL_C;
+  const RESTA=TPROY-TV;
+
+  // PM2 vendido: suma precio unidades vendidas (SIN cochera) / suma m2 vendidos
+  const sumPrecioVend=VV.reduce((s,u)=>s+u.precio,0);
+  const sumM2Vend=VV.reduce((s,u)=>s+u.m2,0);
+  const PM2V=sumM2Vend>0?Math.round(sumPrecioVend/sumM2Vend):0;
+
+  // PM2 proyecto: suma precio TODAS las unidades (SIN cocheras) / suma m2 total
+  const sumM2Total=UU.reduce((s,u)=>s+u.m2,0);
+  const PM2T=sumM2Total>0?Math.round(TOTAL_U/sumM2Total):0;
+
+  const CEJ=COSTOS.terreno.ej+COSTOS.resto.ej;
+  const CPR=COSTOS.terreno.pr+COSTOS.resto.pr;
+  const CT=CEJ+CPR;
+  const MARPROY=TPROY-CT;
+  const MARPCT=Math.round(MARPROY/APORTE*100);
+  const CVEND=cochVendIds.length;
+  const CDISP=COCHERAS_DATA.length-CVEND;
+  const TMES=calcMeses(VV);
+  const VEL=(VV.length/TMES).toFixed(1);
+
+  document.getElementById('dash-subtitle').textContent=`Actualizado al ${new Date().toLocaleDateString('es-AR')}`;
+
+  // KPI
+  document.getElementById('kpi-top').innerHTML=`
+    <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Unidades vendidas</div><div class="kpi-value" style="color:#6ee7b7">${VV.length}/${UU.length}</div><div class="kpi-sub">${pct(VV.length,UU.length)}% del total</div></div>
+    <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Precio promedio x m²</div><div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div><div class="kpi-sub">Promedio del proyecto: ${fmt(PM2T)}</div></div>
+    <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Velocidad ventas</div><div class="kpi-value" style="color:#fbbf24">${VEL}<span style="font-size:11px;font-weight:400;color:#4a7fa5"> u/mes</span></div><div class="kpi-sub">${VV.length} en ${TMES} meses</div></div>
+    <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre costo total proyectado</div><div class="kpi-value" style="color:${MARPROY>=0?'#6ee7b7':'#f87171'}">${pct(MARPROY,CT)}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> del proyecto (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>costo total proyectado</strong> (<strong>${fmt(CT)}</strong>).</div></div>
+    <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre aporte de los socios</div><div class="kpi-value" style="color:${MARPCT>=0?'#6ee7b7':'#f87171'}">${MARPCT}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>aporte realizado por los socios</strong> (<strong>${fmt(APORTE)}</strong>).</div></div>
+  `;
+
+  // Summary
+  document.getElementById('summary-total').innerHTML=`
+    <div class="summary-row"><span class="summary-key">Vendido / total proyecto</span><span class="summary-val" style="color:#6ee7b7">${pct(TV,TPROY)}%</span></div>
+    <div class="summary-row" style="margin-top:4px"><span class="summary-key">Total vendido</span><span class="summary-val" style="font-size:12px">${fmt(TV)}</span></div>
+    <div class="summary-row" style="margin-top:2px"><span class="summary-key">Total proyecto</span><span class="summary-val" style="font-size:12px;color:#4a7fa5">${fmt(TPROY)}</span></div>
+    <div class="summary-row" style="margin-top:2px;border-top:1px solid #1a3a5c;padding-top:5px"><span class="summary-key">Resta vender</span><span class="summary-val" style="font-size:12px;color:#f87171">${fmt(RESTA)}</span></div>
+  `;
+
+  if(donutU)donutU.destroy();if(donutC)donutC.destroy();
+  donutU=mkDonut(document.getElementById('donut-unidades'),[VV.length,DD.length],['Vendidas','Disponibles'],['#6ee7b7','#38bdf8']);
+  mkLeg('leg-unidades',[['Vendidas','#6ee7b7',VV.length],['Disp.','#38bdf8',DD.length]]);
+  donutC=mkDonut(document.getElementById('donut-cocheras'),[CVEND,CDISP],['Vendidas','Disponibles'],['#6ee7b7','#38bdf8']);
+  mkLeg('leg-cocheras',[['Vendidas','#6ee7b7',CVEND],['Disp.','#38bdf8',CDISP]]);
+
+  const ML=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const VF=VV.filter(u=>u.fecha).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  if(VF.length>0){
+    const P1=new Date(VF[0].fecha);
+    const TMES2=Math.max(1,Math.ceil((new Date()-P1)/(1000*60*60*24*30.44)));
+    let ac=0;
+    const SD=VF.map(u=>{ac++;const d=new Date(u.fecha);return{x:parseFloat(((d-P1)/(1000*60*60*24*30.44)).toFixed(2)),y:ac,label:u.cli,fecha:u.fecha};});
+    if(scatterC)scatterC.destroy();
+    scatterC=new Chart(document.getElementById('chart-scatter'),{type:'scatter',data:{datasets:[{data:SD,backgroundColor:'#fbbf24',pointRadius:6,pointHoverRadius:8,pointBorderColor:'#0a1628',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return[`${d.label}`,`${d.fecha}`,`Nº${d.y}`];}}}},scales:{x:{title:{display:true,text:'Meses desde primera venta',color:'#4a7fa5',font:{size:10}},min:0,max:TMES2,ticks:{color:'#4a7fa5',font:{size:9},stepSize:1,maxRotation:45,callback:v=>{const d=new Date(P1);d.setMonth(d.getMonth()+v);return ML[d.getMonth()]+"'"+d.getFullYear().toString().slice(2);}},grid:{color:'rgba(26,58,92,0.6)'}},y:{min:0,max:VV.length+1,ticks:{color:'#4a7fa5',font:{size:10},stepSize:1,precision:0},grid:{color:'rgba(26,58,92,0.6)'}}}}});
+  }
+
+  const COMP=VV.map(u=>({n:u.cli,c:u.cob,t:u.precio+u.pc})).sort((a,b)=>b.c/b.t-a.c/a.t);
+  document.getElementById('chart-cobro-wrap').style.height=(COMP.length*44+50)+'px';
+  if(barC)barC.destroy();
+  barC=new Chart(document.getElementById('chart-cobro'),{type:'bar',data:{labels:COMP.map(c=>c.n),datasets:[{label:'Cobrado',data:COMP.map(c=>c.c),backgroundColor:'#0891b2',borderRadius:3,borderSkipped:false},{label:'Pendiente',data:COMP.map(c=>c.t-c.c),backgroundColor:'#1e3a5c',borderRadius:3,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.x)}`}}},scales:{x:{stacked:true,grid:{color:'rgba(26,58,92,0.5)'},ticks:{color:'#4a7fa5',font:{size:9},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},y:{stacked:true,grid:{display:false},ticks:{color:'#b0cfe0',font:{size:10}}}}}});
+  document.getElementById('leg-cobro-bar').innerHTML=`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#0891b2"></span>Cobrado</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1e3a5c"></span>Pendiente</span>`;
+
+  // UNIDADES
+  document.getElementById('metrics-unidades').innerHTML=`
+    <div class="kpi" style="border-top-color:#38bdf8"><div class="kpi-label">Total</div><div class="kpi-value">${UU.length}</div></div>
+    <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Vendidas</div><div class="kpi-value" style="color:#6ee7b7">${VV.length}</div><div class="kpi-sub">${pct(VV.length,UU.length)}%</div></div>
+    <div class="kpi" style="border-top-color:#38bdf8"><div class="kpi-label">Disponibles</div><div class="kpi-value" style="color:#7dd3fc">${DD.length}</div><div class="kpi-sub">${pct(DD.length,UU.length)}%</div></div>
+  `;
+  const floorsEl=document.getElementById('floors');floorsEl.innerHTML='';
+  ['Planta Baja','Primer Piso','Segundo Piso'].forEach(p=>{
+    const fr=UU.filter(u=>u.piso===p&&u.lado==='Frente');
+    const cf=UU.filter(u=>u.piso===p&&u.lado==='Contrafrente');
+    if(!fr.length&&!cf.length)return;
+    const ru=arr=>arr.map(u=>`<div class="unit ${u.est.toLowerCase()}" onclick="toggleUnit('${u.id}')"><div class="unit-num">Unidad ${u.id}</div><div class="unit-info">${u.tipo} · ${u.m2}m²</div>${u.est==='Vendida'?`<div class="unit-cliente">${u.cli}</div>`:''}<div class="unit-badges">${u.coch&&u.coch.toLowerCase()==='incluida'?`<span class="mb mb-c">C incl.</span>`:(u.coch?`<span class="mb mb-c">${u.coch}</span>`:'')}${u.bau?`<span class="mb mb-b">${u.bau}</span>`:''}</div></div>`).join('');
+    const div=document.createElement('div');div.className='floor';
+    div.innerHTML=`<div class="floor-header">${p}</div><div class="floor-sides"><div><div class="side-label">Frente</div><div class="units">${ru(fr)}</div></div><div><div class="side-label">Contrafrente</div><div class="units">${ru(cf)}</div></div></div>`;
+    floorsEl.appendChild(div);
+  });
+
+  // CB
+  const CL=COCHERAS_DATA.map(c=>{const a=UU.find(u=>u.coch===c.id);return{...c,est:a?'vendida':'disponible',unidad:a?a.id:null,cli:a?a.cli:null};});
+  const BL=Array.from({length:16},(_,i)=>{const id=`B${i+1}`;const a=UU.find(u=>u.bau===id);return{id,est:a?'asignada':'libre',unidad:a?a.id:null};});
+  document.getElementById('metrics-cb').innerHTML=`
+    <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Cocheras vend.</div><div class="kpi-value" style="color:#6ee7b7">${CVEND}</div><div class="kpi-sub">${CDISP} disp.</div></div>
+    <div class="kpi" style="border-top-color:#c4b5fd"><div class="kpi-label">Bauleras asig.</div><div class="kpi-value" style="color:#c4b5fd">${BL.filter(b=>b.est==='asignada').length}</div><div class="kpi-sub">${BL.filter(b=>b.est==='libre').length} libres</div></div>
+    <div class="kpi" style="border-top-color:#38bdf8"><div class="kpi-label">Sin cochera</div><div class="kpi-value">${UU.filter(u=>u.est==='Vendida'&&(!u.coch||u.coch==='')).length}</div><div class="kpi-sub">compradores</div></div>
+  `;
+  const bauGrid=document.getElementById('baulera-grid');bauGrid.innerHTML='';
+  BL.forEach(b=>{const d=document.createElement('div');d.className=`bau-cell ${b.est}`;d.innerHTML=`<div>${b.id}</div>${b.unidad?`<div style="font-size:8px;margin-top:1px">${b.unidad}</div>`:''}`;bauGrid.appendChild(d);});
+  const parkGrid=document.getElementById('parking-grid');parkGrid.innerHTML='';
+  let ACI=null;
+  CL.forEach(c=>{
+    const d=document.createElement('div');d.className=`park-cell ${c.est}`;
+    d.innerHTML=`<div class="park-num">${c.id}</div><div class="park-sub">${c.est==='vendida'?c.unidad:'Libre'}</div>`;
+    d.onclick=()=>{const panel=document.getElementById('cochera-panel');if(ACI===c.id){panel.classList.add('hidden');ACI=null;return;}ACI=c.id;document.getElementById('cochera-panel-title').textContent=`Cochera ${c.id}`;document.getElementById('cochera-body').innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${c.est}">${c.est==='vendida'?'Vendida':'Disponible'}</span></span></div><div class="drow"><span class="dkey">Precio</span><span class="dval">${fmt(c.precio)}</span></div><div class="drow"><span class="dkey">Unidad</span><span class="dval">${c.unidad||'—'}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${c.cli||'—'}</span></div>`;panel.classList.remove('hidden');};
+    parkGrid.appendChild(d);
+  });
+  let cbH='';UU.filter(u=>u.est==='Vendida').forEach(u=>{const ct=u.coch&&u.coch.toLowerCase()==='incluida'?`<span style="background:#451a03;color:#fbbf24;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">Incl.</span>`:u.coch?`<span style="background:#451a03;color:#fbbf24;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">${u.coch}</span>`:"<span style='color:#2d5a7a'>—</span>";cbH+=`<tr><td>${u.id}</td><td>${u.cli}</td><td>${ct}</td><td>${u.bau?`<span style="background:#2e1065;color:#c4b5fd;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600">${u.bau}</span>`:"<span style='color:#2d5a7a'>—</span>"}</td></tr>`;});
+  document.getElementById('cb-tbody').innerHTML=cbH;
+
+  // FINANZAS
+  const precioPromCoch=COCHERAS_DATA.length>0?TOTAL_C/COCHERAS_DATA.length:0;
+  const potDisp=DD.reduce((s,u)=>s+u.precio,0)+CDISP*precioPromCoch;
+  document.getElementById('fin-cards').innerHTML=`
+    <div class="fin-card"><div class="fin-card-label">Total vendido</div><div class="fin-card-value">${fmt(TV)}</div><div class="fin-card-sub">${VV.length} unidades · incluye cocheras vendidas</div></div>
+    <div class="fin-card"><div class="fin-card-label">Total cobrado</div><div class="fin-card-value" style="color:#34d399">${fmt(TC)}</div><div class="fin-card-sub">${pct(TC,TV)}% del total vendido</div></div>
+    <div class="fin-card"><div class="fin-card-label">Pendiente de cobro</div><div class="fin-card-value" style="color:#f87171">${fmt(TP)}</div><div class="fin-card-sub">${100-pct(TC,TV)}% aún no ingresado</div></div>
+    <div class="fin-card"><div class="fin-card-label">Total de venta (proyecto)</div><div class="fin-card-value">${fmt(TPROY)}</div><div class="fin-card-sub">Vendido + disponible a vender</div></div>
+    <div class="fin-card"><div class="fin-card-label">Disponible a vender</div><div class="fin-card-value" style="color:#7dd3fc">${fmt(potDisp)}</div><div class="fin-card-sub">${DD.length} unidades · ${CDISP} cocheras disponibles</div></div>
+  `;
+  segBar('bar-vendido','Cobrado vs. pendiente — sobre total vendido',TC,TP,TV,'Cobrado','Pendiente');
+  segBar('bar-total','Cobrado vs. pendiente — sobre total del proyecto',TC,TPROY-TC,TPROY,'Cobrado','Por ingresar');
+  function costCard(tit,ej,pr){const tot=ej+pr,p=tot>0?pct(ej,tot):100;return`<div class="costo-card"><div class="costo-title">${tit}</div><div class="crow"><span class="ckey">Ejecutado</span><span class="cval" style="color:#34d399">${fmt(ej)}</span></div><div class="crow"><span class="ckey">Proyectado restante</span><span class="cval" style="color:#fbbf24">${fmt(pr)}</span></div><div class="crow"><span class="ckey">Total</span><span class="cval">${fmt(tot)}</span></div><div class="cbar"><div class="cfill" style="width:${p}%;background:#0891b2"></div></div><div style="font-size:9px;color:#2d5a7a;margin-top:5px">${p}% ejecutado</div></div>`;}
+  document.getElementById('costos-grid').innerHTML=costCard('Terreno',COSTOS.terreno.ej,COSTOS.terreno.pr)+costCard('Resto de costos',COSTOS.resto.ej,COSTOS.resto.pr);
+  segBarC('bar-costos-con','Costos ejecutados vs. proyectados — total (incl. terreno)',CEJ,CPR,CT);
+  segBarC('bar-costos-sin','Costos ejecutados vs. proyectados — total (sin terreno)',COSTOS.resto.ej,COSTOS.resto.pr,COSTOS.resto.ej+COSTOS.resto.pr);
+
+  // Rentabilidad — 4 tarjetas: Total venta, Costo total, Margen s/costo, Margen s/inversores
+  document.getElementById('rentab-grid').innerHTML=`
+    <div class="rentab-card"><div class="rentab-label">Total de venta</div><div class="rentab-value" style="color:#e2f0ff;font-size:13px">${fmt(TPROY)}</div><div class="rentab-sub">Vendido + disponible a vender</div></div>
+    <div class="rentab-card"><div class="rentab-label">Costo total</div><div class="rentab-value" style="color:#e2f0ff;font-size:13px">${fmt(CT)}</div><div class="rentab-sub">${fmt(CEJ)} ejecutados · ${fmt(CPR)} restante</div></div>
+    <div class="rentab-card has-tooltip" style="cursor:pointer" onclick="this.classList.toggle('open');this.querySelector('.kpi-tooltip').style.display=this.classList.contains('open')?'block':'none'">
+      <div class="rentab-label">Margen de ganancia sobre costo total proyectado</div>
+      <div class="rentab-value" style="color:${MARPROY>=0?'#34d399':'#f87171'};font-size:13px">${pct(MARPROY,CT)}%</div>
+      <div class="kpi-tooltip" style="display:none">Es la <strong>ganancia proyectada</strong> (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>costo total proyectado</strong> (<strong>${fmt(CT)}</strong>).</div>
+    </div>
+    <div class="rentab-card has-tooltip" style="cursor:pointer" onclick="this.classList.toggle('open');this.querySelector('.kpi-tooltip').style.display=this.classList.contains('open')?'block':'none'">
+      <div class="rentab-label">Margen de ganancia sobre aporte de los socios</div>
+      <div class="rentab-value" style="color:${MARPCT>=0?'#34d399':'#f87171'};font-size:13px">${MARPCT}%</div>
+      <div class="kpi-tooltip" style="display:none">Es la <strong>ganancia proyectada</strong> (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>aporte realizado por los socios</strong> (<strong>${fmt(APORTE)}</strong>).</div>
+    </div>
+  `;
+
+  let ftH='';VV.forEach(u=>{const pt=u.precio+u.pc,pend=pt-u.cob,p=pct(u.cob,pt);ftH+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong><br><span style="font-size:10px;color:#4a7fa5">${u.cli}</span></td><td>${fmt(pt)}</td><td style="color:#34d399;font-weight:600">${fmt(u.cob)}</td><td style="color:${pend>0?'#f87171':'#34d399'};font-weight:600">${fmt(pend)}</td><td><span style="font-size:10px;color:#b0cfe0;font-weight:600">${p}%</span></td></tr>`;});
+  document.getElementById('finance-tbody').innerHTML=ftH;
+
+  updateSim();
+
+  window.toggleUnit=function(id){
+    const panel=document.getElementById('detail-panel');
+    if(window._AUI===id){panel.classList.add('hidden');window._AUI=null;return;}
+    window._AUI=id;
+    const u=UU.find(x=>x.id===id);
+    const pt=u.precio+u.pc,pend=pt-u.cob,p=pt>0?pct(u.cob,pt):0;
+    const ct=u.coch&&u.coch.toLowerCase()==='incluida'?'Cochera incluida':u.coch?u.coch:'Sin cochera';
+    document.getElementById('detail-title').textContent=`Unidad ${u.id} — ${u.tipo}`;
+    document.getElementById('detail-body').innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${u.est.toLowerCase()}">${u.est}</span></span></div><div class="drow"><span class="dkey">Piso/orientación</span><span class="dval">${u.piso} · ${u.lado}</span></div><div class="drow"><span class="dkey">Superficie</span><span class="dval">${u.m2} m²</span></div><div class="drow"><span class="dkey">Precio unidad</span><span class="dval">${fmt(u.precio)}</span></div>${u.pc?`<div class="drow"><span class="dkey">Precio cochera</span><span class="dval">${fmt(u.pc)}</span></div>`:''}<div class="drow"><span class="dkey">Precio total</span><span class="dval">${fmt(pt)}</span></div><div class="drow"><span class="dkey">Cobrado</span><span class="dval" style="color:#34d399">${fmt(u.cob)} (${p}%)</span></div><div class="drow"><span class="dkey">Pendiente</span><span class="dval" style="color:${pend>0?'#f87171':'#34d399'}">${fmt(pend)}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${u.cli||'—'}</span></div><div class="drow"><span class="dkey">Fecha</span><span class="dval">${u.fecha||'—'}</span></div><div class="drow"><span class="dkey">Cochera</span><span class="dval">${ct}</span></div><div class="drow"><span class="dkey">Baulera</span><span class="dval">${u.bau||'Sin asignar'}</span></div>`;
+    panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+}
+
+function updateSim(){
+  const dCostos=parseInt(document.getElementById('sim-costos').value)/100;
+  const dPrecios=parseInt(document.getElementById('sim-precios').value)/100;
+  document.getElementById('sim-costos-val').textContent=(dCostos>=0?'+':'')+Math.round(dCostos*100)+'%';
+  document.getElementById('sim-precios-val').textContent=(dPrecios>=0?'+':'')+Math.round(dPrecios*100)+'%';
+
+  const CT_BASE=COSTOS.terreno.ej+COSTOS.terreno.pr+COSTOS.resto.ej+COSTOS.resto.pr;
+  const CT_SIM=CT_BASE*(1+dCostos);
+  const TOTAL_U=UU.reduce((s,u)=>s+u.precio,0);
+  const TOTAL_C=COCHERAS_DATA.reduce((s,c)=>s+c.precio,0);
+  const TPROY_BASE=TOTAL_U+TOTAL_C;
+  const TPROY_SIM=TPROY_BASE*(1+dPrecios);
+  const MAR_SIM=TPROY_SIM-CT_SIM;
+  const MAR_BASE=TPROY_BASE-CT_BASE;
+  const MAR_SOC_SIM=Math.round(MAR_SIM/APORTE*100);
+  const delta=MAR_SIM-MAR_BASE;
+
+  document.getElementById('sim-results').innerHTML=`
+    <div class="sim-res-card">
+      <div class="sim-res-label">Costo total simulado</div>
+      <div class="sim-res-val" style="color:#fbbf24">${fmt(CT_SIM)}</div>
+      <div class="sim-res-delta" style="color:${dCostos>=0?'#f87171':'#34d399'}">${dCostos>=0?'+':''}${fmt(CT_SIM-CT_BASE)} vs. base</div>
+    </div>
+    <div class="sim-res-card">
+      <div class="sim-res-label">Venta total simulada</div>
+      <div class="sim-res-val" style="color:#7dd3fc">${fmt(TPROY_SIM)}</div>
+      <div class="sim-res-delta" style="color:${dPrecios>=0?'#34d399':'#f87171'}">${dPrecios>=0?'+':''}${fmt(TPROY_SIM-TPROY_BASE)} vs. base</div>
+    </div>
+    <div class="sim-res-card">
+      <div class="sim-res-label">Margen simulado s/costo</div>
+      <div class="sim-res-val" style="color:${MAR_SIM>=0?'#34d399':'#f87171'}">${fmt(MAR_SIM)}</div>
+      <div class="sim-res-delta" style="color:${delta>=0?'#34d399':'#f87171'}">${delta>=0?'+':''}${fmt(delta)} vs. base &nbsp;·&nbsp; ${pct(MAR_SIM,TPROY_SIM)}%</div>
+    </div>
+    <div class="sim-res-card">
+      <div class="sim-res-label">Margen simulado s/socios</div>
+      <div class="sim-res-val" style="color:${MAR_SOC_SIM>=0?'#34d399':'#f87171'}">${MAR_SOC_SIM}%</div>
+      <div class="sim-res-delta" style="color:#4a7fa5">${fmt(MAR_SIM)} / ${fmt(APORTE)}</div>
+    </div>
+  `;
+
+  // Tabla de precios simulados para unidades y cocheras disponibles
+  const DD=UU.filter(u=>u.est==='Disponible');
+  const cochVendIds=UU.filter(u=>u.est==='Vendida'&&u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
+  const cochDisp=COCHERAS_DATA.filter(c=>!cochVendIds.includes(c.id));
+
+  let tablaHTML='';
+  if(dPrecios!==0){
+    tablaHTML+=`<div class="sim-section-label">Departamentos disponibles — nuevos precios simulados</div>`;
+    tablaHTML+=`<table class="sim-table"><thead><tr><th>Unidad</th><th>Tipo</th><th>m²</th><th>Precio actual</th><th>Precio simulado</th><th>Diferencia</th></tr></thead><tbody>`;
+    DD.forEach(u=>{
+      const ps=Math.round(u.precio*(1+dPrecios));
+      const diff=ps-u.precio;
+      tablaHTML+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong></td><td>${u.tipo}</td><td>${u.m2}</td><td>${fmt(u.precio)}</td><td style="color:#34d399;font-weight:600">${fmt(ps)}</td><td style="color:${diff>=0?'#34d399':'#f87171'}">${diff>=0?'+':''}${fmt(diff)}</td></tr>`;
+    });
+    tablaHTML+=`</tbody></table>`;
+    tablaHTML+=`<div class="sim-section-label" style="margin-top:14px">Cocheras disponibles — nuevos precios simulados</div>`;
+    tablaHTML+=`<table class="sim-table"><thead><tr><th>Cochera</th><th>Precio actual</th><th>Precio simulado</th><th>Diferencia</th></tr></thead><tbody>`;
+    cochDisp.forEach(c=>{
+      const ps=Math.round(c.precio*(1+dPrecios));
+      const diff=ps-c.precio;
+      tablaHTML+=`<tr><td><strong style="color:#fbbf24">${c.id}</strong></td><td>${fmt(c.precio)}</td><td style="color:#34d399;font-weight:600">${fmt(ps)}</td><td style="color:${diff>=0?'#34d399':'#f87171'}">${diff>=0?'+':''}${fmt(diff)}</td></tr>`;
+    });
+    tablaHTML+=`</tbody></table>`;
+  }
+  document.getElementById('sim-precios-tabla').innerHTML=tablaHTML;
+}
+
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelector(`.tab[onclick="showTab('${t}')"]`).classList.add('active');
+  document.getElementById(`page-${t}`).classList.add('active');
+}
+
+setupFileInput('csv-unidades','unidades');
+setupFileInput('csv-cocheras','cocheras');
+renderAll();
+
+async function tryFetchCSV(){
+  try{
+    const [ru,rc]=await Promise.all([
+      fetch('datos.csv').then(r=>r.ok?r.text():null).catch(()=>null),
+      fetch('cocheras.csv').then(r=>r.ok?r.text():null).catch(()=>null),
+    ]);
+    let loaded=false;
+    if(ru){loadUnidadesCSV(parseCSV(ru));loaded=true;}
+    if(rc){loadCocherasCSV(parseCSV(rc));loaded=true;}
+    if(loaded){renderAll();document.getElementById('csv-status').textContent='Datos cargados desde repositorio';document.getElementById('csv-status').className='csv-status ok';}
+  }catch(e){}
+}
+tryFetchCSV();
 </script>
 </body>
 </html>
