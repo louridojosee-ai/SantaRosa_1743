@@ -481,11 +481,17 @@ function renderAll(){
   const precioPromCoch=COCHERAS_DATA.length>0?TOTAL_C/COCHERAS_DATA.length:0;
   const potDisp=DD.reduce((s,u)=>s+u.precio,0)+CDISP*precioPromCoch;
   document.getElementById('fin-cards').innerHTML=`
-    <div class="fin-card"><div class="fin-card-label">Total vendido</div><div class="fin-card-value">${fmt(TV)}</div><div class="fin-card-sub">${VV.length} unidades · incluye cocheras vendidas</div></div>
-    <div class="fin-card"><div class="fin-card-label">Total cobrado</div><div class="fin-card-value" style="color:#34d399">${fmt(TC)}</div><div class="fin-card-sub">${pct(TC,TV)}% del total vendido</div></div>
-    <div class="fin-card"><div class="fin-card-label">Pendiente de cobro</div><div class="fin-card-value" style="color:#f87171">${fmt(TP)}</div><div class="fin-card-sub">${100-pct(TC,TV)}% aún no ingresado</div></div>
-    <div class="fin-card"><div class="fin-card-label">Total de venta (proyecto)</div><div class="fin-card-value">${fmt(TPROY)}</div><div class="fin-card-sub">Vendido + disponible a vender</div></div>
-    <div class="fin-card"><div class="fin-card-label">Disponible a vender</div><div class="fin-card-value" style="color:#7dd3fc">${fmt(potDisp)}</div><div class="fin-card-sub">${DD.length} unidades · ${CDISP} cocheras disponibles</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="fin-card"><div class="fin-card-label">Total vendido</div><div class="fin-card-value">${fmt(TV)}</div><div class="fin-card-sub">${VV.length} unidades · incluye cocheras vendidas</div></div>
+        <div class="fin-card"><div class="fin-card-label">Total cobrado</div><div class="fin-card-value" style="color:#34d399">${fmt(TC)}</div><div class="fin-card-sub">${pct(TC,TV)}% del total vendido</div></div>
+        <div class="fin-card"><div class="fin-card-label">Pendiente de cobro</div><div class="fin-card-value" style="color:#f87171">${fmt(TP)}</div><div class="fin-card-sub">${100-pct(TC,TV)}% aún no ingresado</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="fin-card"><div class="fin-card-label">Total de venta (proyecto)</div><div class="fin-card-value">${fmt(TPROY)}</div><div class="fin-card-sub">Vendido + disponible a vender</div></div>
+        <div class="fin-card"><div class="fin-card-label">Disponible a vender</div><div class="fin-card-value" style="color:#7dd3fc">${fmt(potDisp)}</div><div class="fin-card-sub">${DD.length} unidades · ${CDISP} cocheras disponibles</div></div>
+      </div>
+    </div>
   `;
   segBar('bar-vendido','Cobrado vs. pendiente — sobre total vendido',TC,TP,TV,'Cobrado','Pendiente');
   segBar('bar-total','Cobrado vs. pendiente — sobre total del proyecto',TC,TPROY-TC,TPROY,'Cobrado','Por ingresar');
