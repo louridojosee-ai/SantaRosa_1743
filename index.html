@@ -3,8 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Inmobiliario</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<title>Dashboard Santa Rosa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+function toggleTheme(){
+  const body = document.body;
+  const btn = document.getElementById('theme-btn');
+  if(body.classList.contains('light')){
+    body.classList.remove('light');
+    btn.style.background='#0d1f3c';
+    btn.style.borderColor='#1a3a5c';
+    btn.style.color='#38bdf8';
+    btn.textContent='☀ Claro';
+    localStorage.setItem('theme','dark');
+  } else {
+    body.classList.add('light');
+    btn.style.background='#fff';
+    btn.style.borderColor='#8b5cf6';
+    btn.style.color='#8b5cf6';
+    btn.textContent='☽ Oscuro';
+    localStorage.setItem('theme','light');
+  }
+}
+// Restore saved theme
+if(localStorage.getItem('theme')==='light'){
+  document.body.classList.add('light');
+  document.addEventListener('DOMContentLoaded',()=>{
+    const btn=document.getElementById('theme-btn');
+    if(btn){btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';}
+  });
+}
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:#0a1628;color:#e2f0ff}
@@ -168,10 +197,101 @@ tr:hover td{background:#0d1f3c}
   .sim-grid{grid-template-columns:repeat(2,1fr)}
   .sim-results{grid-template-columns:repeat(4,1fr)}
 }
+
+body.light{background:#f1f5f9;color:#0f172a}
+body.light .wrap{background:#f1f5f9}
+body.light .csv-bar{background:#fff;border-color:#e2e8f0}
+body.light .csv-bar label{color:#8b5cf6}
+body.light .csv-btn{background:#f1f5f9;border-color:#8b5cf6;color:#8b5cf6}
+body.light .csv-btn:hover{background:#ede9fe}
+body.light h1{color:#0f172a}
+body.light .subtitle{color:#64748b}
+body.light .tab-resumen{background:#e0f2fe;border-color:#93c5fd;color:#1d4ed8}
+body.light .tab-unidades{background:#dcfce7;border-color:#86efac;color:#15803d}
+body.light .tab-cb{background:#fef9c3;border-color:#fde047;color:#92400e}
+body.light .tab-finanzas{background:#f3e8ff;border-color:#d8b4fe;color:#6b21a8}
+body.light .tab.active.tab-resumen{background:#bfdbfe;border-color:#1d4ed8}
+body.light .tab.active.tab-unidades{background:#bbf7d0;border-color:#15803d}
+body.light .tab.active.tab-cb{background:#fef08a;border-color:#92400e}
+body.light .tab.active.tab-finanzas{background:#e9d5ff;border-color:#6b21a8}
+body.light .kpi{background:#fff;border-color:#e2e8f0}
+body.light .kpi-label{color:#64748b}
+body.light .kpi-value{color:#0f172a}
+body.light .kpi-sub{color:#94a3b8}
+body.light .kpi-tooltip{background:#f8fafc;border-color:#8b5cf6;color:#334155}
+body.light .kpi-tooltip strong{color:#8b5cf6}
+body.light .section-title{color:#8b5cf6}
+body.light .card{background:#fff;border-color:#e2e8f0}
+body.light .card-title{color:#8b5cf6}
+body.light .summary-block{background:#f8fafc;border-color:#e2e8f0}
+body.light .summary-key{color:#64748b}
+body.light .summary-val{color:#0f172a}
+body.light .donut-sub-title{color:#64748b}
+body.light .leg-item{color:#475569}
+body.light .floor-header{color:#0f172a;border-color:#e2e8f0}
+body.light .side-label{color:#94a3b8}
+body.light .unit.disponible{background:#eff6ff;border-color:#bfdbfe}
+body.light .unit.vendida{background:#f0fdf4;border-color:#bbf7d0}
+body.light .unit.disponible .unit-num{color:#1d4ed8}
+body.light .unit.vendida .unit-num{color:#15803d}
+body.light .unit.disponible .unit-info{color:#3b82f6}
+body.light .unit.vendida .unit-info{color:#22c55e}
+body.light .unit-cliente{color:#166534}
+body.light .mb-c{background:#fef3c7;color:#92400e}
+body.light .mb-b{background:#ede9fe;color:#5b21b6}
+body.light .legend-item{color:#64748b}
+body.light .panel{background:#f8fafc;border-color:#e2e8f0}
+body.light .panel-title{color:#8b5cf6}
+body.light .drow{border-color:#f1f5f9}
+body.light .dkey{color:#64748b}
+body.light .dval{color:#0f172a}
+body.light .badge.disponible{background:#eff6ff;color:#1d4ed8}
+body.light .badge.vendida{background:#f0fdf4;color:#15803d}
+body.light .park-cell.disponible{background:#eff6ff;border-color:#bfdbfe}
+body.light .park-cell.vendida{background:#f0fdf4;border-color:#bbf7d0}
+body.light .park-cell.disponible .park-num{color:#1d4ed8}
+body.light .park-cell.vendida .park-num{color:#15803d}
+body.light .park-cell.disponible .park-sub{color:#3b82f6}
+body.light .park-cell.vendida .park-sub{color:#22c55e}
+body.light .bau-cell.libre{background:#eff6ff;color:#1d4ed8}
+body.light .bau-cell.asignada{background:#f0fdf4;color:#15803d}
+body.light .metrics3 .kpi{background:#fff;border-color:#e2e8f0}
+body.light .fin-card{background:#fff;border-color:#e2e8f0}
+body.light .fin-card-label{color:#64748b}
+body.light .fin-card-value{color:#0f172a}
+body.light .fin-card-sub{color:#94a3b8}
+body.light .seg-title{color:#8b5cf6}
+body.light .seg-track{background:#f1f5f9;border-color:#e2e8f0}
+body.light .seg-leg-item{color:#64748b}
+body.light .costo-card{background:#fff;border-color:#e2e8f0}
+body.light .costo-title{color:#8b5cf6}
+body.light .crow{border-color:#f1f5f9}
+body.light .ckey{color:#64748b}
+body.light .cbar{background:#f1f5f9}
+body.light .rentab-card{background:#f8fafc;border-color:#e2e8f0}
+body.light .rentab-label{color:#64748b}
+body.light .rentab-sub{color:#94a3b8}
+body.light .sim-box{background:#f8fafc;border-color:#8b5cf6}
+body.light .sim-title{color:#8b5cf6}
+body.light .sim-label{color:#64748b}
+body.light .sim-val{color:#0f172a}
+body.light .sim-results{border-color:#e2e8f0}
+body.light .sim-res-card{background:#fff;border-color:#e2e8f0}
+body.light .sim-res-label{color:#64748b}
+body.light .sim-section-label{color:#92400e;border-color:#e2e8f0}
+body.light .sim-table th{color:#8b5cf6;border-color:#e2e8f0}
+body.light .sim-table td{color:#334155;border-color:#f1f5f9}
+body.light .sim-table tr:hover td{background:#f8fafc}
+body.light .divider{border-color:#e2e8f0}
+body.light table th{color:#8b5cf6;border-color:#e2e8f0}
+body.light table td{color:#334155;border-color:#f1f5f9}
+body.light table tr:hover td{background:#f8fafc}
+body.light .csv-status{color:#64748b}
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" style="position:relative">
+  <button id="theme-btn" onclick="toggleTheme()" style="position:absolute;top:1.5rem;right:1rem;background:#0d1f3c;border:1px solid #1a3a5c;color:#38bdf8;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;transition:all .15s">☀ Claro</button>
   <h1>Dashboard Inmobiliario</h1>
   <p class="subtitle" id="dash-subtitle">Cargando datos...</p>
   <div class="csv-bar">
@@ -402,7 +522,7 @@ function renderAll(){
   // KPI
   document.getElementById('kpi-top').innerHTML=`
     <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Unidades vendidas</div><div class="kpi-value" style="color:#6ee7b7">${VV.length}/${UU.length}</div><div class="kpi-sub">${pct(VV.length,UU.length)}% del total</div></div>
-    <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Precio promedio x m²</div><div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div><div class="kpi-sub">Promedio del proyecto: ${fmt(PM2T)}</div></div>
+    <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Precio promedio x m² vendido</div><div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div><div class="kpi-sub">Precio promedio del total del proyecto: ${fmt(PM2T)}</div></div>
     <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Velocidad ventas</div><div class="kpi-value" style="color:#fbbf24">${VEL}<span style="font-size:11px;font-weight:400;color:#4a7fa5"> u/mes</span></div><div class="kpi-sub">${VV.length} en ${TMES} meses</div></div>
     <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre costo total proyectado</div><div class="kpi-value" style="color:${MARPROY>=0?'#6ee7b7':'#f87171'}">${pct(MARPROY,CT)}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> del proyecto (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>costo total proyectado</strong> (<strong>${fmt(CT)}</strong>).</div></div>
     <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre aporte de los socios</div><div class="kpi-value" style="color:${MARPCT>=0?'#6ee7b7':'#f87171'}">${MARPCT}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>aporte realizado por los socios</strong> (<strong>${fmt(APORTE)}</strong>).</div></div>
