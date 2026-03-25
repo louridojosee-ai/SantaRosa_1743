@@ -4,7 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Santa Rosa</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+function toggleTheme(){
+  const body = document.body;
+  const btn = document.getElementById('theme-btn');
+  if(body.classList.contains('light')){
+    body.classList.remove('light');
+    btn.style.background='#0d1f3c';
+    btn.style.borderColor='#1a3a5c';
+    btn.style.color='#38bdf8';
+    btn.textContent='☀ Claro';
+    localStorage.setItem('theme','dark');
+  } else {
+    body.classList.add('light');
+    btn.style.background='#fff';
+    btn.style.borderColor='#8b5cf6';
+    btn.style.color='#8b5cf6';
+    btn.textContent='☽ Oscuro';
+    localStorage.setItem('theme','light');
+  }
+}
+// Restore saved theme
+function clearSavedData(){
+  try{localStorage.removeItem('sr_unidades');localStorage.removeItem('sr_cocheras');}catch(e){}
+  UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
+  COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
+  renderAll();
+  const st=document.getElementById('csv-status');
+  st.textContent='Datos guardados eliminados — usando datos del repositorio';
+  st.className='csv-status';
+}
+if(localStorage.getItem('theme')==='light'){
+  document.body.classList.add('light');
+  document.addEventListener('DOMContentLoaded',()=>{
+    const btn=document.getElementById('theme-btn');
+    if(btn){btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';}
+  });
+}
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:#0a1628;color:#e2f0ff}
@@ -168,11 +206,102 @@ tr:hover td{background:#0d1f3c}
   .sim-grid{grid-template-columns:repeat(2,1fr)}
   .sim-results{grid-template-columns:repeat(4,1fr)}
 }
+
+body.light{background:#f1f5f9;color:#0f172a}
+body.light .wrap{background:#f1f5f9}
+body.light .csv-bar{background:#fff;border-color:#e2e8f0}
+body.light .csv-bar label{color:#8b5cf6}
+body.light .csv-btn{background:#f1f5f9;border-color:#8b5cf6;color:#8b5cf6}
+body.light .csv-btn:hover{background:#ede9fe}
+body.light h1{color:#0f172a}
+body.light .subtitle{color:#64748b}
+body.light .tab-resumen{background:#e0f2fe;border-color:#93c5fd;color:#1d4ed8}
+body.light .tab-unidades{background:#dcfce7;border-color:#86efac;color:#15803d}
+body.light .tab-cb{background:#fef9c3;border-color:#fde047;color:#92400e}
+body.light .tab-finanzas{background:#f3e8ff;border-color:#d8b4fe;color:#6b21a8}
+body.light .tab.active.tab-resumen{background:#bfdbfe;border-color:#1d4ed8}
+body.light .tab.active.tab-unidades{background:#bbf7d0;border-color:#15803d}
+body.light .tab.active.tab-cb{background:#fef08a;border-color:#92400e}
+body.light .tab.active.tab-finanzas{background:#e9d5ff;border-color:#6b21a8}
+body.light .kpi{background:#fff;border-color:#e2e8f0}
+body.light .kpi-label{color:#64748b}
+body.light .kpi-value{color:#0f172a}
+body.light .kpi-sub{color:#94a3b8}
+body.light .kpi-tooltip{background:#f8fafc;border-color:#8b5cf6;color:#334155}
+body.light .kpi-tooltip strong{color:#8b5cf6}
+body.light .section-title{color:#8b5cf6}
+body.light .card{background:#fff;border-color:#e2e8f0}
+body.light .card-title{color:#8b5cf6}
+body.light .summary-block{background:#f8fafc;border-color:#e2e8f0}
+body.light .summary-key{color:#64748b}
+body.light .summary-val{color:#0f172a}
+body.light .donut-sub-title{color:#64748b}
+body.light .leg-item{color:#475569}
+body.light .floor-header{color:#0f172a;border-color:#e2e8f0}
+body.light .side-label{color:#94a3b8}
+body.light .unit.disponible{background:#eff6ff;border-color:#bfdbfe}
+body.light .unit.vendida{background:#f0fdf4;border-color:#bbf7d0}
+body.light .unit.disponible .unit-num{color:#1d4ed8}
+body.light .unit.vendida .unit-num{color:#15803d}
+body.light .unit.disponible .unit-info{color:#3b82f6}
+body.light .unit.vendida .unit-info{color:#22c55e}
+body.light .unit-cliente{color:#166534}
+body.light .mb-c{background:#fef3c7;color:#92400e}
+body.light .mb-b{background:#ede9fe;color:#5b21b6}
+body.light .legend-item{color:#64748b}
+body.light .panel{background:#f8fafc;border-color:#e2e8f0}
+body.light .panel-title{color:#8b5cf6}
+body.light .drow{border-color:#f1f5f9}
+body.light .dkey{color:#64748b}
+body.light .dval{color:#0f172a}
+body.light .badge.disponible{background:#eff6ff;color:#1d4ed8}
+body.light .badge.vendida{background:#f0fdf4;color:#15803d}
+body.light .park-cell.disponible{background:#eff6ff;border-color:#bfdbfe}
+body.light .park-cell.vendida{background:#f0fdf4;border-color:#bbf7d0}
+body.light .park-cell.disponible .park-num{color:#1d4ed8}
+body.light .park-cell.vendida .park-num{color:#15803d}
+body.light .park-cell.disponible .park-sub{color:#3b82f6}
+body.light .park-cell.vendida .park-sub{color:#22c55e}
+body.light .bau-cell.libre{background:#eff6ff;color:#1d4ed8}
+body.light .bau-cell.asignada{background:#f0fdf4;color:#15803d}
+body.light .metrics3 .kpi{background:#fff;border-color:#e2e8f0}
+body.light .fin-card{background:#fff;border-color:#e2e8f0}
+body.light .fin-card-label{color:#64748b}
+body.light .fin-card-value{color:#0f172a}
+body.light .fin-card-sub{color:#94a3b8}
+body.light .seg-title{color:#8b5cf6}
+body.light .seg-track{background:#f1f5f9;border-color:#e2e8f0}
+body.light .seg-leg-item{color:#64748b}
+body.light .costo-card{background:#fff;border-color:#e2e8f0}
+body.light .costo-title{color:#8b5cf6}
+body.light .crow{border-color:#f1f5f9}
+body.light .ckey{color:#64748b}
+body.light .cbar{background:#f1f5f9}
+body.light .rentab-card{background:#f8fafc;border-color:#e2e8f0}
+body.light .rentab-label{color:#64748b}
+body.light .rentab-sub{color:#94a3b8}
+body.light .sim-box{background:#f8fafc;border-color:#8b5cf6}
+body.light .sim-title{color:#8b5cf6}
+body.light .sim-label{color:#64748b}
+body.light .sim-val{color:#0f172a}
+body.light .sim-results{border-color:#e2e8f0}
+body.light .sim-res-card{background:#fff;border-color:#e2e8f0}
+body.light .sim-res-label{color:#64748b}
+body.light .sim-section-label{color:#92400e;border-color:#e2e8f0}
+body.light .sim-table th{color:#8b5cf6;border-color:#e2e8f0}
+body.light .sim-table td{color:#334155;border-color:#f1f5f9}
+body.light .sim-table tr:hover td{background:#f8fafc}
+body.light .divider{border-color:#e2e8f0}
+body.light table th{color:#8b5cf6;border-color:#e2e8f0}
+body.light table td{color:#334155;border-color:#f1f5f9}
+body.light table tr:hover td{background:#f8fafc}
+body.light .csv-status{color:#64748b}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Dashboard Santa Rosa</h1>
+<div class="wrap" style="position:relative">
+  <button id="theme-btn" onclick="toggleTheme()" style="position:absolute;top:1.5rem;right:1rem;background:#0d1f3c;border:1px solid #1a3a5c;color:#38bdf8;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.05em;transition:all .15s">☀ Claro</button>
+  <h1>Dashboard Inmobiliario</h1>
   <p class="subtitle" id="dash-subtitle">Cargando datos...</p>
   <div class="csv-bar">
     <label>Actualizar datos</label>
@@ -182,6 +311,7 @@ tr:hover td{background:#0d1f3c}
       <button class="csv-btn" onclick="document.getElementById('csv-unidades').click()">Subir datos.csv</button>
       <button class="csv-btn" onclick="document.getElementById('csv-cocheras').click()">Subir cocheras.csv</button>
       <span class="csv-status" id="csv-status">Usando datos del repositorio</span>
+      <button class="csv-btn" onclick="clearSavedData()" style="border-color:#f87171;color:#f87171">Borrar datos guardados</button>
     </div>
   </div>
   <div class="tabs">
@@ -323,9 +453,11 @@ function loadUnidadesCSV(rows){
     fecha:r['Fecha operación'],cob:parseFloat(r['Cobrado hasta hoy (USD)'])||0,
     coch:r['Cochera asig.'],bau:r['Baulera asig.'],
   }));
+  try{localStorage.setItem('sr_unidades',JSON.stringify(UU));}catch(e){}
 }
 function loadCocherasCSV(rows){
   COCHERAS_DATA=rows.map(r=>({id:r['ID Cochera'],precio:parseFloat(r['Precio (USD)'])||0}));
+  try{localStorage.setItem('sr_cocheras',JSON.stringify(COCHERAS_DATA));}catch(e){}
 }
 function setupFileInput(inputId,type){
   document.getElementById(inputId).addEventListener('change',function(e){
@@ -348,6 +480,16 @@ function setupFileInput(inputId,type){
 }
 
 function fmt(n){return'USD '+Math.round(n).toLocaleString();}
+function parseDate(s){
+  if(!s||s.trim()==='')return null;
+  // DD/MM/YYYY
+  const dm=s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(dm)return new Date(parseInt(dm[3]),parseInt(dm[2])-1,parseInt(dm[1]));
+  // YYYY-MM-DD
+  const ym=s.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(ym)return new Date(parseInt(ym[1]),parseInt(ym[2])-1,parseInt(ym[3]));
+  return null;
+}
 function pct(a,b){return b>0?Math.round(a/b*100):0;}
 function mkLeg(id,items){document.getElementById(id).innerHTML=items.map(([l,c,v])=>`<span class="leg-item"><span class="leg-dot" style="background:${c}"></span>${l}${v!==null?`: <strong style="color:#e2f0ff;margin-left:2px">${v}</strong>`:''}</span>`).join('');}
 function mkDonut(canvas,data,labels,colors){return new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.toLocaleString()}`}}}}});}
@@ -355,9 +497,9 @@ function segBar(el,title,gv,rv,tot,gl,rl){const pG=pct(gv,tot),pR=pct(rv,tot);do
 function segBarC(el,title,gv,rv,tot){const pG=pct(gv,tot),pR=pct(rv,tot);document.getElementById(el).innerHTML=`<div class="seg-title">${title}</div><div class="seg-track"><div style="background:#0891b2;height:100%;width:${pG}%;display:flex;align-items:center;min-width:2px"><span class="seg-lbl">${fmt(gv)}</span></div><div style="background:#fbbf24;height:100%;flex:1;display:flex;align-items:center;justify-content:flex-end"><span class="seg-lbl">${fmt(rv)}</span></div></div><div class="seg-legend"><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#0891b2"></div>Ejecutado (${pG}%)</div><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#fbbf24"></div>Proy. restante (${pR}%)</div></div>`;}
 
 function calcMeses(VV){
-  const VF=VV.filter(u=>u.fecha).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const VF=VV.filter(u=>u.fecha&&parseDate(u.fecha)).sort((a,b)=>parseDate(a.fecha)-parseDate(b.fecha));
   if(!VF.length)return 1;
-  return Math.max(1,Math.ceil((new Date()-new Date(VF[0].fecha))/(1000*60*60*24*30.44)));
+  return Math.max(1,Math.ceil((new Date()-parseDate(VF[0].fecha))/(1000*60*60*24*30.44)));
 }
 
 function renderAll(){
@@ -402,7 +544,7 @@ function renderAll(){
   // KPI
   document.getElementById('kpi-top').innerHTML=`
     <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Unidades vendidas</div><div class="kpi-value" style="color:#6ee7b7">${VV.length}/${UU.length}</div><div class="kpi-sub">${pct(VV.length,UU.length)}% del total</div></div>
-    <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Precio promedio x m²</div><div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div><div class="kpi-sub">Promedio del proyecto: ${fmt(PM2T)}</div></div>
+    <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Precio promedio x m² vendido</div><div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div><div class="kpi-sub">Precio promedio del total del proyecto: ${fmt(PM2T)}</div></div>
     <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Velocidad ventas</div><div class="kpi-value" style="color:#fbbf24">${VEL}<span style="font-size:11px;font-weight:400;color:#4a7fa5"> u/mes</span></div><div class="kpi-sub">${VV.length} en ${TMES} meses</div></div>
     <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre costo total proyectado</div><div class="kpi-value" style="color:${MARPROY>=0?'#6ee7b7':'#f87171'}">${pct(MARPROY,CT)}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> del proyecto (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>costo total proyectado</strong> (<strong>${fmt(CT)}</strong>).</div></div>
     <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre aporte de los socios</div><div class="kpi-value" style="color:${MARPCT>=0?'#6ee7b7':'#f87171'}">${MARPCT}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>aporte realizado por los socios</strong> (<strong>${fmt(APORTE)}</strong>).</div></div>
@@ -423,12 +565,12 @@ function renderAll(){
   mkLeg('leg-cocheras',[['Vendidas','#6ee7b7',CVEND],['Disp.','#38bdf8',CDISP]]);
 
   const ML=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const VF=VV.filter(u=>u.fecha).sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const VF=VV.filter(u=>u.fecha&&parseDate(u.fecha)).sort((a,b)=>parseDate(a.fecha)-parseDate(b.fecha));
   if(VF.length>0){
-    const P1=new Date(VF[0].fecha);
+    const P1=parseDate(VF[0].fecha);
     const TMES2=Math.max(1,Math.ceil((new Date()-P1)/(1000*60*60*24*30.44)));
     let ac=0;
-    const SD=VF.map(u=>{ac++;const d=new Date(u.fecha);return{x:parseFloat(((d-P1)/(1000*60*60*24*30.44)).toFixed(2)),y:ac,label:u.cli,fecha:u.fecha};});
+    const SD=VF.map(u=>{ac++;const d=parseDate(u.fecha);return{x:parseFloat(((d-P1)/(1000*60*60*24*30.44)).toFixed(2)),y:ac,label:u.cli,fecha:u.fecha};});
     if(scatterC)scatterC.destroy();
     scatterC=new Chart(document.getElementById('chart-scatter'),{type:'scatter',data:{datasets:[{data:SD,backgroundColor:'#fbbf24',pointRadius:6,pointHoverRadius:8,pointBorderColor:'#0a1628',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return[`${d.label}`,`${d.fecha}`,`Nº${d.y}`];}}}},scales:{x:{title:{display:true,text:'Meses desde primera venta',color:'#4a7fa5',font:{size:10}},min:0,max:TMES2,ticks:{color:'#4a7fa5',font:{size:9},stepSize:1,maxRotation:45,callback:v=>{const d=new Date(P1);d.setMonth(d.getMonth()+v);return ML[d.getMonth()]+"'"+d.getFullYear().toString().slice(2);}},grid:{color:'rgba(26,58,92,0.6)'}},y:{min:0,max:VV.length+1,ticks:{color:'#4a7fa5',font:{size:10},stepSize:1,precision:0},grid:{color:'rgba(26,58,92,0.6)'}}}}});
   }
@@ -610,6 +752,17 @@ function showTab(t){
 
 setupFileInput('csv-unidades','unidades');
 setupFileInput('csv-cocheras','cocheras');
+// Restaurar datos guardados en localStorage
+try{
+  const su=localStorage.getItem('sr_unidades');
+  const sc=localStorage.getItem('sr_cocheras');
+  if(su)UU=JSON.parse(su);
+  if(sc)COCHERAS_DATA=JSON.parse(sc);
+  if(su||sc){
+    document.getElementById('csv-status').textContent='Datos guardados cargados';
+    document.getElementById('csv-status').className='csv-status ok';
+  }
+}catch(e){}
 renderAll();
 
 async function tryFetchCSV(){
