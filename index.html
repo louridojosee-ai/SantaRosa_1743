@@ -379,6 +379,9 @@ body.light .csv-status{color:#64748b}
     <div class="section-title" style="margin-top:0">Rentabilidad estimada</div>
     <div class="rentab-stack" id="rentab-grid"></div>
     <hr class="divider">
+    <div class="section-title" style="margin-top:0">Cobertura de costos pendientes</div>
+    <div id="coverage-box"></div>
+    <hr class="divider">
     <div class="section-title" style="margin-top:0">Simulador de escenarios</div>
     <div class="sim-box">
       <div class="sim-title">Ajustá costos y precios para simular escenarios</div>
@@ -661,6 +664,7 @@ function renderAll(){
   let ftH='';VV.forEach(u=>{const pt=u.precio+u.pc,pend=pt-u.cob,p=pct(u.cob,pt);ftH+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong><br><span style="font-size:10px;color:#4a7fa5">${u.cli}</span></td><td>${fmt(pt)}</td><td style="color:#34d399;font-weight:600">${fmt(u.cob)}</td><td style="color:${pend>0?'#f87171':'#34d399'};font-weight:600">${fmt(pend)}</td><td><span style="font-size:10px;color:#b0cfe0;font-weight:600">${p}%</span></td></tr>`;});
   document.getElementById('finance-tbody').innerHTML=ftH;
 
+  renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA);
   updateSim();
 
   window.toggleUnit=function(id){
@@ -674,6 +678,299 @@ function renderAll(){
     document.getElementById('detail-body').innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${u.est.toLowerCase()}">${u.est}</span></span></div><div class="drow"><span class="dkey">Piso/orientación</span><span class="dval">${u.piso} · ${u.lado}</span></div><div class="drow"><span class="dkey">Superficie</span><span class="dval">${u.m2} m²</span></div><div class="drow"><span class="dkey">Precio unidad</span><span class="dval">${fmt(u.precio)}</span></div>${u.pc?`<div class="drow"><span class="dkey">Precio cochera</span><span class="dval">${fmt(u.pc)}</span></div>`:''}<div class="drow"><span class="dkey">Precio total</span><span class="dval">${fmt(pt)}</span></div><div class="drow"><span class="dkey">Cobrado</span><span class="dval" style="color:#34d399">${fmt(u.cob)} (${p}%)</span></div><div class="drow"><span class="dkey">Pendiente</span><span class="dval" style="color:${pend>0?'#f87171':'#34d399'}">${fmt(pend)}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${u.cli||'—'}</span></div><div class="drow"><span class="dkey">Fecha</span><span class="dval">${u.fecha||'—'}</span></div><div class="drow"><span class="dkey">Cochera</span><span class="dval">${ct}</span></div><div class="drow"><span class="dkey">Baulera</span><span class="dval">${u.bau||'Sin asignar'}</span></div>`;
     panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
+}
+
+function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
+  const el=document.getElementById('coverage-box');
+  if(!el)return;
+
+  const costosPendientes=CPR;
+  const pendienteVendido=TP;
+  const gap=costosPendientes-pendienteVendido;
+  const cubierto=gap<=0;
+  const pctCubierto=costosPendientes>0?Math.min(100,Math.round(pendienteVendido/costosPendientes*100)):100;
+
+  const vendCochIds=UU.filter(u=>u.est==='Vendida'&&u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
+  const cochDisp=COCHERAS_DATA.filter(c=>!vendCochIds.includes(c.id)).sort((a,b)=>b.precio-a.precio);
+  const unidDisp=[...DD].sort((a,b)=>b.precio-a.precio);
+
+  let html=`<div style="background:#091525;border:1px solid ${cubierto?'#34d399':'#f87171'};border-radius:10px;padding:14px;margin-bottom:1.2rem">`;
+
+  // Tarjetas resumen
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Costos pendientes de pago</div>
+      <div style="font-size:15px;font-weight:700;color:#fbbf24">${fmt(costosPendientes)}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">lo que aún falta pagar</div>
+    </div>
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Pendiente de cobro (vendido)</div>
+      <div style="font-size:15px;font-weight:700;color:#38bdf8">${fmt(pendienteVendido)}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">de unidades ya vendidas</div>
+    </div>
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">${cubierto?'Excedente':'Déficit a cubrir'}</div>
+      <div style="font-size:15px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${cubierto?'+':''}${fmt(Math.abs(gap))}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${cubierto?'cobros pendientes superan costos':'faltan por ingresar'}</div>
+    </div>
+  </div>`;
+
+  // Barra progreso
+  html+=`<div style="margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a7fa5;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">
+      <span>Cobros pendientes vs. costos pendientes</span><span>${pctCubierto}%</span>
+    </div>
+    <div style="height:10px;border-radius:6px;background:#0d1f3c;overflow:hidden;border:1px solid #1a3a5c">
+      <div style="height:100%;width:${pctCubierto}%;background:${cubierto?'#34d399':'#38bdf8'};border-radius:6px"></div>
+    </div>
+  </div>`;
+
+  if(!cubierto){
+    html+=`<div style="font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1a3a5c">
+      Seleccioná las unidades y cocheras que cubrirían el déficit
+    </div>`;
+
+    // Encode data for JS
+    const uData = JSON.stringify(unidDisp.map(u=>({id:u.id,tipo:u.tipo,m2:u.m2,precio:u.precio})));
+    const cData = JSON.stringify(cochDisp.map(c=>({id:c.id,precio:c.precio})));
+
+    html+=`
+    <div style="margin-bottom:10px">
+      <div style="font-size:9px;color:#6ee7b7;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Departamentos disponibles</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="cards-unid"></div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:9px;color:#fbbf24;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Cocheras disponibles</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="cards-coch"></div>
+    </div>
+    <div id="coverage-totals"></div>`;
+
+    html+='</div>';
+    el.innerHTML=html;
+
+    // Render cards
+    window._covGap = gap;
+    window._covUnid = JSON.parse(uData);
+    window._covCoch = JSON.parse(cData);
+    window._selUnid = new Set();
+    window._selCoch = new Set();
+
+    renderCoverageCards();
+
+  } else {
+    html+=`<div style="background:#064e3b;border:1px solid #065f46;border-radius:8px;padding:10px 12px;font-size:11px;color:#a7f3d0;line-height:1.6">
+      Los cobros pendientes de lo ya vendido (${fmt(pendienteVendido)}) <strong>superan los costos proyectados pendientes</strong> (${fmt(costosPendientes)}) por ${fmt(Math.abs(gap))}. Los costos están cubiertos sin necesidad de nuevas ventas.
+    </div>`;
+    html+='</div>';
+    el.innerHTML=html;
+  }
+}
+
+function renderCoverageCards(){
+  const gap = window._covGap;
+  const unids = window._covUnid||[];
+  const cochs = window._covCoch||[];
+  const selU = window._selUnid||new Set();
+  const selC = window._selCoch||new Set();
+
+  const elU = document.getElementById('cards-unid');
+  const elC = document.getElementById('cards-coch');
+  if(!elU||!elC) return;
+
+  const sumU = unids.filter(u=>selU.has(u.id)).reduce((s,u)=>s+u.precio,0);
+  const sumC = cochs.filter(c=>selC.has(c.id)).reduce((s,c)=>s+c.precio,0);
+  const total = sumU+sumC;
+  const cubierto = total>=gap;
+  const excedente = total-gap;
+
+  // Cards unidades
+  elU.innerHTML = unids.map(u=>{
+    const sel = selU.has(u.id);
+    return `<div onclick="toggleCovCard('u','${u.id}')" style="
+      cursor:pointer;border-radius:8px;padding:8px 10px;border:2px solid ${sel?'#6ee7b7':'#1a3a5c'};
+      background:${sel?'#064e3b':'#0d1f3c'};transition:all .15s;min-width:90px">
+      <div style="font-size:11px;font-weight:700;color:${sel?'#6ee7b7':'#7dd3fc'}">Ud. ${u.id}</div>
+      <div style="font-size:10px;color:${sel?'#a7f3d0':'#4a7fa5'};margin-top:1px">${u.tipo} · ${u.m2}m²</div>
+      <div style="font-size:11px;font-weight:700;color:${sel?'#34d399':'#b0cfe0'};margin-top:3px">${fmt(u.precio)}</div>
+      ${sel?`<div style="font-size:9px;color:#34d399;margin-top:2px">✓ seleccionada</div>`:''}
+    </div>`;
+  }).join('');
+
+  // Cards cocheras
+  elC.innerHTML = cochs.map(c=>{
+    const sel = selC.has(c.id);
+    return `<div onclick="toggleCovCard('c','${c.id}')" style="
+      cursor:pointer;border-radius:8px;padding:8px 10px;border:2px solid ${sel?'#fbbf24':'#1a3a5c'};
+      background:${sel?'#451a03':'#0d1f3c'};transition:all .15s;min-width:80px">
+      <div style="font-size:11px;font-weight:700;color:${sel?'#fbbf24':'#7dd3fc'}">${c.id}</div>
+      <div style="font-size:11px;font-weight:700;color:${sel?'#fde68a':'#b0cfe0'};margin-top:4px">${fmt(c.precio)}</div>
+      ${sel?`<div style="font-size:9px;color:#fbbf24;margin-top:2px">✓ seleccionada</div>`:''}
+    </div>`;
+  }).join('');
+
+  // Totales
+  const elT = document.getElementById('coverage-totals');
+  if(!elT) return;
+
+  let thtml=`<div style="background:#0d1f3c;border:1px solid ${cubierto?'#065f46':'#1a3a5c'};border-radius:8px;padding:12px">`;
+  thtml+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:${(selU.size+selC.size)>0?'12px':'0'}">
+    <div>
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;font-weight:600;margin-bottom:3px">Depts. seleccionados</div>
+      <div style="font-size:14px;font-weight:700;color:#6ee7b7">${selU.size} <span style="font-size:10px;color:#4a7fa5">· ${fmt(sumU)}</span></div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;font-weight:600;margin-bottom:3px">Cocheras selec.</div>
+      <div style="font-size:14px;font-weight:700;color:#fbbf24">${selC.size} <span style="font-size:10px;color:#4a7fa5">· ${fmt(sumC)}</span></div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;font-weight:600;margin-bottom:3px">Total cubierto</div>
+      <div style="font-size:14px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${fmt(total)}</div>
+    </div>
+    <div>
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;font-weight:600;margin-bottom:3px">${cubierto?'Excedente':'Falta cubrir'}</div>
+      <div style="font-size:14px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${cubierto?'+':''}${fmt(excedente)}</div>
+    </div>
+  </div>`;
+
+  // Barra de progreso de selección
+  if(gap>0){
+    const pctSel=Math.min(100,Math.round(total/gap*100));
+    thtml+=`<div style="height:8px;border-radius:4px;background:#091525;overflow:hidden;border:1px solid #1a3a5c">
+      <div style="height:100%;width:${pctSel}%;background:${cubierto?'#34d399':'#38bdf8'};border-radius:4px;transition:width .2s"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a7fa5;margin-top:4px">
+      <span>${pctSel}% del déficit cubierto</span>
+      ${cubierto?`<span style="color:#34d399;font-weight:600">✓ Déficit cubierto</span>`:`<span style="color:#f87171">Faltan ${fmt(gap-total)}</span>`}
+    </div>`;
+  }
+
+  thtml+='</div>';
+  elT.innerHTML=thtml;
+}
+
+function toggleCovCard(type, id){
+  if(type==='u'){
+    if(window._selUnid.has(id)) window._selUnid.delete(id);
+    else window._selUnid.add(id);
+  } else {
+    if(window._selCoch.has(id)) window._selCoch.delete(id);
+    else window._selCoch.add(id);
+  }
+  renderCoverageCards();
+}
+
+function updateMix(gap, totalUnid, totalCoch){
+  const pctCoch = parseInt(document.getElementById('mix-slider')?.value||50)/100;
+  const pctUnid = 1 - pctCoch;
+
+  const vendCochIds=UU.filter(u=>u.est==='Vendida'&&u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
+  const cochDisp=COCHERAS_DATA.filter(c=>!vendCochIds.includes(c.id)).sort((a,b)=>b.precio-a.precio);
+  const unidDisp=UU.filter(u=>u.est==='Disponible').sort((a,b)=>b.precio-a.precio);
+
+  // Cuánto del déficit cubre cada tipo
+  const gapUnid = Math.round(gap * pctUnid);
+  const gapCoch = gap - gapUnid;
+
+  // Seleccionar unidades reales hasta cubrir gapUnid
+  const selUnid=[];
+  let acumUnid=0;
+  for(const u of unidDisp){
+    if(acumUnid>=gapUnid) break;
+    selUnid.push(u);
+    acumUnid+=u.precio;
+  }
+
+  // Seleccionar cocheras reales hasta cubrir gapCoch
+  const selCoch=[];
+  let acumCoch=0;
+  for(const c of cochDisp){
+    if(acumCoch>=gapCoch) break;
+    selCoch.push(c);
+    acumCoch+=c.precio;
+  }
+
+  const totalCubierto=acumUnid+acumCoch;
+  const excedente=totalCubierto-gap;
+  const alcanza=selUnid.length<=unidDisp.length&&selCoch.length<=cochDisp.length;
+
+  let html='';
+
+  // Resumen mix
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px">Departamentos a vender</div>
+      <div style="font-size:20px;font-weight:700;color:#6ee7b7">${selUnid.length}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${fmt(acumUnid)} total</div>
+    </div>
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px">Cocheras a vender</div>
+      <div style="font-size:20px;font-weight:700;color:#fbbf24">${selCoch.length}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${fmt(acumCoch)} total</div>
+    </div>
+    <div style="background:#0d1f3c;border:1px solid ${alcanza?'#065f46':'#7f1d1d'};border-radius:8px;padding:10px;text-align:center">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px">Total cubierto</div>
+      <div style="font-size:20px;font-weight:700;color:${alcanza?'#34d399':'#f87171'}">${fmt(totalCubierto)}</div>
+      <div style="font-size:10px;color:${excedente>=0?'#34d399':'#f87171'};margin-top:2px">${excedente>=0?'Excedente: +'+fmt(excedente):'Faltan: '+fmt(Math.abs(excedente))}</div>
+    </div>
+  </div>`;
+
+  // Tablas lado a lado
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
+
+  // Tabla departamentos
+  if(selUnid.length>0){
+    html+=`<div><div style="font-size:9px;font-weight:700;color:#6ee7b7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Departamentos</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr>
+        <th style="text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Unidad</th>
+        <th style="text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Tipo</th>
+        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Precio</th>
+        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Acumulado</th>
+      </tr></thead><tbody>`;
+    let runU=0;
+    selUnid.forEach(u=>{
+      runU+=u.precio;
+      html+=`<tr>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#7dd3fc;font-weight:600">${u.id}</td>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#b0cfe0">${u.tipo} · ${u.m2}m²</td>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#6ee7b7;font-weight:600;text-align:right">${fmt(u.precio)}</td>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#4a7fa5;text-align:right">${fmt(runU)}</td>
+      </tr>`;
+    });
+    html+=`<tr><td colspan="2" style="padding:5px 6px;font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase">Total depts.</td>
+      <td colspan="2" style="padding:5px 6px;text-align:right;font-weight:700;color:#6ee7b7">${fmt(acumUnid)}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  } else {
+    html+=`<div style="display:flex;align-items:center;justify-content:center;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:20px;font-size:11px;color:#4a7fa5">Sin departamentos en este mix</div>`;
+  }
+
+  // Tabla cocheras
+  if(selCoch.length>0){
+    html+=`<div><div style="font-size:9px;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Cocheras</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr>
+        <th style="text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Cochera</th>
+        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Precio</th>
+        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Acumulado</th>
+      </tr></thead><tbody>`;
+    let runC=0;
+    selCoch.forEach(c=>{
+      runC+=c.precio;
+      html+=`<tr>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#fbbf24;font-weight:600">${c.id}</td>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#6ee7b7;font-weight:600;text-align:right">${fmt(c.precio)}</td>
+        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#4a7fa5;text-align:right">${fmt(runC)}</td>
+      </tr>`;
+    });
+    html+=`<tr><td style="padding:5px 6px;font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase">Total coch.</td>
+      <td colspan="2" style="padding:5px 6px;text-align:right;font-weight:700;color:#fbbf24">${fmt(acumCoch)}</td></tr>`;
+    html+=`</tbody></table></div>`;
+  } else {
+    html+=`<div style="display:flex;align-items:center;justify-content:center;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:20px;font-size:11px;color:#4a7fa5">Sin cocheras en este mix</div>`;
+  }
+
+  html+=`</div>`;
+  document.getElementById('mix-result').innerHTML=html;
 }
 
 function updateSim(){
