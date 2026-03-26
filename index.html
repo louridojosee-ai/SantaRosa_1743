@@ -708,9 +708,9 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
       <div style="font-size:10px;color:#2d5a7a;margin-top:2px">de unidades ya vendidas</div>
     </div>
     <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
-      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Costos a cubrir</div>
-      <div style="font-size:15px;font-weight:700;color:#fbbf24">${fmt(costosPendientes)}</div>
-      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">costo proyectado restante</div>
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">${cubierto?'Excedente':'Déficit a cubrir'}</div>
+      <div style="font-size:15px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${cubierto?'+':''}${fmt(Math.abs(gap))}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${cubierto?'los cobros pendientes superan los costos':'faltan por ingresar'}</div>
     </div>
   </div>`;
 
@@ -748,7 +748,7 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
     el.innerHTML=html;
 
     // Render cards
-    window._covGap = costosPendientes;
+    window._covGap = gap;
     window._covUnid = JSON.parse(uData);
     window._covCoch = JSON.parse(cData);
     window._selUnid = new Set();
