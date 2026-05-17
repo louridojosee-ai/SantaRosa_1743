@@ -4,45 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Santa Rosa</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
-function toggleTheme(){
-  const body = document.body;
-  const btn = document.getElementById('theme-btn');
-  if(body.classList.contains('light')){
-    body.classList.remove('light');
-    btn.style.background='#0d1f3c';
-    btn.style.borderColor='#1a3a5c';
-    btn.style.color='#38bdf8';
-    btn.textContent='☀ Claro';
-    localStorage.setItem('theme','dark');
-  } else {
-    body.classList.add('light');
-    btn.style.background='#fff';
-    btn.style.borderColor='#8b5cf6';
-    btn.style.color='#8b5cf6';
-    btn.textContent='☽ Oscuro';
-    localStorage.setItem('theme','light');
-  }
-}
-// Restore saved theme
-function clearSavedData(){
-  try{localStorage.removeItem('sr_unidades');localStorage.removeItem('sr_cocheras');}catch(e){}
-  UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
-  COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
-  renderAll();
-  const st=document.getElementById('csv-status');
-  st.textContent='Datos guardados eliminados — usando datos del repositorio';
-  st.className='csv-status';
-}
-if(localStorage.getItem('theme')==='light'){
-  document.body.classList.add('light');
-  document.addEventListener('DOMContentLoaded',()=>{
-    const btn=document.getElementById('theme-btn');
-    if(btn){btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';}
-  });
-}
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;font-size:14px;background:#0a1628;color:#e2f0ff}
@@ -1157,6 +1119,46 @@ async function tryFetchCSV(){
   }catch(e){}
 }
 tryFetchCSV();
+
+// ── THEME TOGGLE & CLEAR DATA ──
+function toggleTheme(){
+  const body = document.body;
+  const btn = document.getElementById('theme-btn');
+  if(body.classList.contains('light')){
+    body.classList.remove('light');
+    btn.style.background='#0d1f3c';
+    btn.style.borderColor='#1a3a5c';
+    btn.style.color='#38bdf8';
+    btn.textContent='☀ Claro';
+    localStorage.setItem('theme','dark');
+  } else {
+    body.classList.add('light');
+    btn.style.background='#fff';
+    btn.style.borderColor='#8b5cf6';
+    btn.style.color='#8b5cf6';
+    btn.textContent='☽ Oscuro';
+    localStorage.setItem('theme','light');
+  }
+}
+// Restore saved theme
+function clearSavedData(){
+  try{localStorage.removeItem('sr_unidades');localStorage.removeItem('sr_cocheras');}catch(e){}
+  UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
+  COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
+  renderAll();
+  const st=document.getElementById('csv-status');
+  st.textContent='Datos guardados eliminados — usando datos del repositorio';
+  st.className='csv-status';
+}
+if(localStorage.getItem('theme')==='light'){
+  document.body.classList.add('light');
+  document.addEventListener('DOMContentLoaded',()=>{
+    const btn=document.getElementById('theme-btn');
+    if(btn){btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';}
+  });
+}
+
+
 </script>
 </body>
 </html>
