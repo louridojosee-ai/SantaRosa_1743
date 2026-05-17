@@ -374,6 +374,23 @@ body.light .csv-status{color:#64748b}
     <div class="seg-wrap" id="bar-total"></div>
     <hr class="divider">
     <div class="section-title" style="margin-top:0">Costos</div>
+    <details style="margin-bottom:12px;background:#091525;border:1px solid #38bdf8;border-radius:10px;padding:0">
+      <summary style="cursor:pointer;padding:10px 14px;font-size:10px;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:.06em;list-style:none;display:flex;justify-content:space-between;align-items:center">
+        <span>⚙ Editar costos del proyecto</span>
+        <span style="font-size:9px;color:#4a7fa5">click para abrir</span>
+      </summary>
+      <div style="padding:14px;border-top:1px solid #1a3a5c">
+        <div style="font-size:10px;color:#4a7fa5;margin-bottom:10px;line-height:1.5">
+          Editá los valores y hacé clic en <strong style="color:#38bdf8">Guardar</strong>. Los cambios afectan márgenes y rentabilidad. Si dejás un campo vacío se calcula automáticamente con los otros dos.
+        </div>
+        <div id="costos-editor" style="display:grid;grid-template-columns:1fr;gap:10px"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button onclick="guardarCostos()" style="background:#0d2a4a;border:1px solid #38bdf8;color:#38bdf8;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer">Guardar costos</button>
+          <button onclick="resetCostos()" style="background:#0d2a4a;border:1px solid #f87171;color:#f87171;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer">Restaurar por defecto</button>
+          <span id="costos-status" style="font-size:10px;color:#4a7fa5;align-self:center"></span>
+        </div>
+      </div>
+    </details>
     <div class="costo-stack" id="costos-grid"></div>
     <div class="seg-wrap" id="bar-costos-con"></div>
     <div class="seg-wrap" id="bar-costos-sin"></div>
@@ -430,7 +447,12 @@ const DEFAULT_COCHERAS=[
   {id:"C9",precio:25000},{id:"C10",precio:25000},{id:"C11",precio:27000},{id:"C12",precio:27000},
   {id:"C13",precio:27000},{id:"C14",precio:27000},{id:"C15",precio:27000},{id:"C16",precio:27000},
 ];
-const COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
+let COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
+// Cargar costos personalizados desde localStorage si existen
+try{
+  const sc=localStorage.getItem('sr_costos');
+  if(sc){const o=JSON.parse(sc);if(o&&o.terreno&&o.resto)COSTOS=o;}
+}catch(e){}
 const APORTE=920000;
 
 let UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
@@ -641,6 +663,7 @@ function renderAll(){
   segBar('bar-total','Cobrado vs. pendiente — sobre total del proyecto',TC,TPROY-TC,TPROY,'Cobrado','Por ingresar');
   function costCard(tit,ej,pr){const tot=ej+pr,p=tot>0?pct(ej,tot):100;return`<div class="costo-card"><div class="costo-title">${tit}</div><div class="crow"><span class="ckey">Ejecutado</span><span class="cval" style="color:#34d399">${fmt(ej)}</span></div><div class="crow"><span class="ckey">Proyectado restante</span><span class="cval" style="color:#fbbf24">${fmt(pr)}</span></div><div class="crow"><span class="ckey">Total</span><span class="cval">${fmt(tot)}</span></div><div class="cbar"><div class="cfill" style="width:${p}%;background:#0891b2"></div></div><div style="font-size:9px;color:#2d5a7a;margin-top:5px">${p}% ejecutado</div></div>`;}
   document.getElementById('costos-grid').innerHTML=costCard('Terreno',COSTOS.terreno.ej,COSTOS.terreno.pr)+costCard('Resto de costos',COSTOS.resto.ej,COSTOS.resto.pr);
+  renderCostosEditor();
   segBarC('bar-costos-con','Costos ejecutados vs. proyectados — total (incl. terreno)',CEJ,CPR,CT);
   segBarC('bar-costos-sin','Costos ejecutados vs. proyectados — total (sin terreno)',COSTOS.resto.ej,COSTOS.resto.pr,COSTOS.resto.ej+COSTOS.resto.pr);
 
@@ -1039,6 +1062,66 @@ function updateSim(){
   document.getElementById('sim-precios-tabla').innerHTML=tablaHTML;
 }
 
+function renderCostosEditor(){
+  const el=document.getElementById('costos-editor');
+  if(!el)return;
+  const total = COSTOS.terreno.ej + COSTOS.terreno.pr + COSTOS.resto.ej + COSTOS.resto.pr;
+  const ejecutado = COSTOS.terreno.ej + COSTOS.resto.ej;
+  const restante = COSTOS.terreno.pr + COSTOS.resto.pr;
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+      <label style="font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo total proyectado (USD)</label>
+      <input type="number" id="in-total" value="${total}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#e2f0ff;font-size:13px;font-weight:600;font-family:inherit">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+      <label style="font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo ya ejecutado (USD)</label>
+      <input type="number" id="in-ejec" value="${ejecutado}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#34d399;font-size:13px;font-weight:600;font-family:inherit">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+      <label style="font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo que falta ejecutar (USD)</label>
+      <input type="number" id="in-rest" value="${restante}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#fbbf24;font-size:13px;font-weight:600;font-family:inherit">
+    </div>
+  `;
+}
+function guardarCostos(){
+  let t = parseFloat(document.getElementById('in-total').value) || 0;
+  let e = parseFloat(document.getElementById('in-ejec').value) || 0;
+  let r = parseFloat(document.getElementById('in-rest').value) || 0;
+  // Reconciliar: si total no coincide con ej+rest, ajustar
+  const totalVal = document.getElementById('in-total').value.trim();
+  const ejecVal  = document.getElementById('in-ejec').value.trim();
+  const restVal  = document.getElementById('in-rest').value.trim();
+  if(totalVal===''&&ejecVal!==''&&restVal!=='') t = e + r;
+  else if(ejecVal===''&&totalVal!==''&&restVal!=='') e = t - r;
+  else if(restVal===''&&totalVal!==''&&ejecVal!=='') r = t - e;
+  else {
+    // Si todos tienen valor, priorizar Ejecutado + Restante = Total
+    if(Math.abs((e+r)-t)>1){
+      if(!confirm(`Los valores no cuadran: Ejecutado (${e.toLocaleString()}) + Restante (${r.toLocaleString()}) = ${(e+r).toLocaleString()}, pero Total dice ${t.toLocaleString()}.\n\nAceptar = usar Ejecutado + Restante como Total real.\nCancelar = cancelar guardado para corregir.`)){
+        const st=document.getElementById('costos-status');
+        st.textContent='Guardado cancelado'; st.style.color='#f87171';
+        return;
+      }
+      t = e + r;
+    }
+  }
+  // Asignar todo a "resto" (sin separar terreno) para simplificar
+  COSTOS = {terreno:{ej:0,pr:0}, resto:{ej:e, pr:r}};
+  try{localStorage.setItem('sr_costos',JSON.stringify(COSTOS));}catch(err){}
+  renderAll();
+  const st=document.getElementById('costos-status');
+  st.textContent='✓ Costos actualizados'; st.style.color='#34d399';
+  setTimeout(()=>{st.textContent='';},3000);
+}
+function resetCostos(){
+  if(!confirm('¿Restaurar los costos al valor por defecto?\n(Terreno: USD 560.000 ejecutado · Resto: USD 750.000 ejecutado + USD 1.350.000 proyectado)'))return;
+  COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
+  try{localStorage.removeItem('sr_costos');}catch(e){}
+  renderAll();
+  const st=document.getElementById('costos-status');
+  st.textContent='✓ Restaurado'; st.style.color='#34d399';
+  setTimeout(()=>{st.textContent='';},3000);
+}
 function showTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
