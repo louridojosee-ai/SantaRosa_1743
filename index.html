@@ -157,13 +157,13 @@ tr:hover td{background:#0d1f3c}
 .cobro-row{display:grid;grid-template-columns:110px 1fr 72px 72px;gap:6px;align-items:center;padding:7px 0;border-bottom:1px solid #132d47}
 .cobro-row:last-child{border-bottom:none}
 .cobro-name{font-size:11px;font-weight:600;color:#b0cfe0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cobro-bar-wrap{display:flex;height:22px;border-radius:4px;overflow:hidden;background:#091525;position:relative}
-.cobro-bar-cobrado{background:#0891b2;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s}
-.cobro-bar-pendiente{background:#1e3a5c;height:100%;display:flex;align-items:center;transition:width .2s}
-.cobro-bar-dif-real{background:#065f46;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s}
-.cobro-bar-dif-proy{background:repeating-linear-gradient(45deg,#065f46,#065f46 3px,#0a7a5a 3px,#0a7a5a 6px);height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s}
-.cobro-bar-neg{background:#9f1239;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s}
-.cobro-bar-lbl{font-size:9px;font-weight:600;color:#fff;padding:0 5px;white-space:nowrap;overflow:hidden}
+.cobro-bar-wrap{display:flex;height:22px;border-radius:4px;background:#091525;position:relative}
+.cobro-bar-cobrado{background:#0891b2;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s;overflow:hidden;border-radius:4px 0 0 4px}
+.cobro-bar-pendiente{background:#1e3a5c;height:100%;display:flex;align-items:center;transition:width .2s;overflow:hidden}
+.cobro-bar-dif-real{background:#065f46;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s;overflow:visible;position:relative;z-index:1}
+.cobro-bar-dif-proy{background:repeating-linear-gradient(45deg,#065f46,#065f46 3px,#0a7a5a 3px,#0a7a5a 6px);height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s;overflow:visible;position:relative;z-index:1}
+.cobro-bar-neg{background:#9f1239;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s;overflow:visible;position:relative;z-index:1}
+.cobro-bar-lbl{font-size:9px;font-weight:600;color:#fff;padding:0 5px;white-space:nowrap}
 .cobro-dif-input{width:100%;padding:4px 6px;background:#091525;border:1px solid #1a3a5c;border-radius:5px;color:#e2f0ff;font-size:11px;font-weight:600;font-family:inherit;text-align:right;transition:border-color .15s}
 .cobro-dif-input:focus{outline:none;border-color:#38bdf8}
 .cobro-dif-input.positive{color:#34d399;border-color:#065f46}
@@ -643,7 +643,7 @@ function renderAll(){
     const totalOrig=u.precio+u.pc;
     const totalReal=totalOrig+difTotal;
     return{id:u.id,n:u.cli,c:u.cob,totalOrig,difR,difP,difTotal,totalReal,pend:totalReal-u.cob};
-  }).sort((a,b)=>b.c/b.totalReal-a.c/a.totalReal);
+  }).sort((a,b)=>parseInt(a.id)-parseInt(b.id));
 
   // Max for bar scaling = max between any buyer's original price and their total real (to show negative diffs too)
   const maxBar=Math.max(...COMP.map(c=>Math.max(c.totalOrig,c.totalReal,c.c)));
@@ -662,8 +662,8 @@ function renderAll(){
       const wDifP=scale(Math.max(0,c.difP));
       segments=`<div class="cobro-bar-cobrado" style="width:${Math.max(1,wCob)}%"><span class="cobro-bar-lbl">$${fmtShort(c.c)}</span></div>`;
       if(wPend>0) segments+=`<div class="cobro-bar-pendiente" style="width:${wPend}%"><span class="cobro-bar-lbl">${pendBase>0?'$'+fmtShort(pendBase):''}</span></div>`;
-      if(wDifR>0) segments+=`<div class="cobro-bar-dif-real" style="width:${wDifR}%"><span class="cobro-bar-lbl">${c.difR>=1000?'$'+fmtShort(c.difR):''}</span></div>`;
-      if(wDifP>0) segments+=`<div class="cobro-bar-dif-proy" style="width:${wDifP}%"><span class="cobro-bar-lbl">${c.difP>=1000?'$'+fmtShort(c.difP):''}</span></div>`;
+      if(wDifR>0) segments+=`<div class="cobro-bar-dif-real" style="width:${wDifR}%"><span class="cobro-bar-lbl">+$${fmtShort(c.difR)}</span></div>`;
+      if(wDifP>0) segments+=`<div class="cobro-bar-dif-proy" style="width:${wDifP}%"><span class="cobro-bar-lbl">+$${fmtShort(c.difP)}</span></div>`;
     } else {
       // Negative diff: cobrado | adjusted-pending | negative-gap
       const wCob=scale(c.c);
