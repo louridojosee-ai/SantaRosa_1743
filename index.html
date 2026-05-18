@@ -152,6 +152,28 @@ th{text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:up
 td{padding:7px 8px;border-bottom:1px solid #132d47;color:#b0cfe0}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#0d1f3c}
+
+/* Cobro por comprador - barras HTML */
+.cobro-row{display:grid;grid-template-columns:110px 1fr 100px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #132d47}
+.cobro-row:last-child{border-bottom:none}
+.cobro-name{font-size:11px;font-weight:600;color:#b0cfe0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cobro-bar-wrap{display:flex;height:22px;border-radius:4px;overflow:hidden;background:#091525;position:relative}
+.cobro-bar-cobrado{background:#0891b2;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s}
+.cobro-bar-pendiente{background:#1e3a5c;height:100%;display:flex;align-items:center;flex:1;transition:width .2s}
+.cobro-bar-extra{background:#065f46;height:100%;display:flex;align-items:center;min-width:1px;transition:width .2s}
+.cobro-bar-lbl{font-size:9px;font-weight:600;color:#fff;padding:0 5px;white-space:nowrap;overflow:hidden}
+.cobro-dif-wrap{display:flex;align-items:center;gap:4px}
+.cobro-dif-input{width:70px;padding:4px 6px;background:#091525;border:1px solid #1a3a5c;border-radius:5px;color:#e2f0ff;font-size:11px;font-weight:600;font-family:inherit;text-align:right;transition:border-color .15s}
+.cobro-dif-input:focus{outline:none;border-color:#38bdf8}
+.cobro-dif-input.positive{color:#34d399;border-color:#065f46}
+.cobro-dif-input.negative{color:#f87171;border-color:#7f1d1d}
+.cobro-header{display:grid;grid-template-columns:110px 1fr 100px;gap:8px;padding:0 0 6px;border-bottom:1px solid #1a3a5c;margin-bottom:4px}
+.cobro-header span{font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:.06em}
+.cobro-totals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #1a3a5c}
+.cobro-total-card{background:#091525;border:1px solid #1a3a5c;border-radius:6px;padding:8px 10px;text-align:center}
+.cobro-total-label{font-size:9px;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:3px}
+.cobro-total-val{font-size:13px;font-weight:700}
+
 @media(min-width:600px){
   .tabs{grid-template-columns:repeat(4,1fr)}
   .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -164,9 +186,11 @@ tr:hover td{background:#0d1f3c}
   .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.4rem}
   .charts-row .card{margin-bottom:0}
   .fin-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .cobro-row{grid-template-columns:140px 1fr 110px}
+  .cobro-header{grid-template-columns:140px 1fr 110px}
 }
 @media(min-width:900px){
-  .kpi-grid{grid-template-columns:repeat(6,minmax(0,1fr))
+  .kpi-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
   .costo-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .sim-grid{grid-template-columns:repeat(2,1fr)}
   .sim-results{grid-template-columns:repeat(4,1fr)}
@@ -261,6 +285,14 @@ body.light table th{color:#8b5cf6;border-color:#e2e8f0}
 body.light table td{color:#334155;border-color:#f1f5f9}
 body.light table tr:hover td{background:#f8fafc}
 body.light .csv-status{color:#64748b}
+body.light .cobro-name{color:#334155}
+body.light .cobro-bar-wrap{background:#f1f5f9}
+body.light .cobro-dif-input{background:#f8fafc;border-color:#e2e8f0;color:#0f172a}
+body.light .cobro-dif-input:focus{border-color:#8b5cf6}
+body.light .cobro-header span{color:#8b5cf6}
+body.light .cobro-row{border-color:#f1f5f9}
+body.light .cobro-total-card{background:#f8fafc;border-color:#e2e8f0}
+body.light .cobro-total-label{color:#64748b}
 </style>
 </head>
 <body>
@@ -298,8 +330,18 @@ body.light .csv-status{color:#64748b}
     </div>
     <div class="section-title">Cobro por comprador</div>
     <div class="card">
-      <div id="chart-cobro-wrap" style="position:relative"><canvas id="chart-cobro"></canvas></div>
-      <div id="leg-cobro-bar" style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:#38bdf8;flex-wrap:wrap"></div>
+      <div class="cobro-header">
+        <span>Comprador</span>
+        <span>Cobrado / Total</span>
+        <span style="text-align:right">Dif. USD</span>
+      </div>
+      <div id="cobro-bars"></div>
+      <div id="cobro-totals"></div>
+      <div style="display:flex;gap:14px;margin-top:8px;font-size:10px;color:#38bdf8;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#0891b2"></span>Cobrado</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1e3a5c"></span>Pendiente</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#065f46"></span>Diferencial positivo</span>
+      </div>
     </div>
     <div class="section-title">Cobertura de costos pendientes</div>
     <div id="coverage-box"></div>
@@ -388,7 +430,7 @@ body.light .csv-status{color:#64748b}
     </div>
     <hr class="divider">
     <div class="section-title" style="margin-top:0">Detalle por unidad vendida</div>
-    <div class="tbl-wrap"><table><thead><tr><th>Unidad</th><th>Precio</th><th>Cobrado</th><th>Pendiente</th><th>%</th></tr></thead><tbody id="finance-tbody"></tbody></table></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Unidad</th><th>Precio</th><th>Dif.</th><th>Total real</th><th>Cobrado</th><th>Pendiente</th><th>%</th></tr></thead><tbody id="finance-tbody"></tbody></table></div>
   </div>
 </div>
 
@@ -418,19 +460,21 @@ const DEFAULT_COCHERAS=[
   {id:"C13",precio:27000},{id:"C14",precio:27000},{id:"C15",precio:27000},{id:"C16",precio:27000},
 ];
 let COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
-let SALDO_CAJA=0;  // saldo actual en caja en USD
-// Cargar costos y saldo personalizados desde localStorage si existen
+let SALDO_CAJA=0;
+let DIFERENCIALES={}; // {unitId: number} — diferencial USD por unidad vendida
 try{
   const sc=localStorage.getItem('sr_costos');
   if(sc){const o=JSON.parse(sc);if(o&&o.terreno&&o.resto)COSTOS=o;}
   const ss=localStorage.getItem('sr_saldo_caja');
   if(ss!==null&&ss!==''&&!isNaN(parseFloat(ss)))SALDO_CAJA=parseFloat(ss);
+  const sd=localStorage.getItem('sr_diferenciales');
+  if(sd)DIFERENCIALES=JSON.parse(sd);
 }catch(e){}
 const APORTE=950000;
 
 let UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
 let COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
-let donutU=null,donutC=null,scatterC=null,barC=null;
+let scatterC=null;
 
 function parseCSV(text){
   const lines=text.trim().split('\n').map(l=>l.trim()).filter(l=>l);
@@ -477,21 +521,19 @@ function setupFileInput(inputId,type){
 }
 
 function fmt(n){return'USD '+Math.round(n).toLocaleString();}
+function fmtShort(n){const a=Math.abs(n);if(a>=1e6)return(n/1e6).toFixed(1)+'M';if(a>=1e3)return(n/1e3).toFixed(0)+'k';return n.toString();}
 function parseDate(s){
   if(!s||s.trim()==='')return null;
-  // DD/MM/YYYY
   const dm=s.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if(dm)return new Date(parseInt(dm[3]),parseInt(dm[2])-1,parseInt(dm[1]));
-  // YYYY-MM-DD
   const ym=s.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if(ym)return new Date(parseInt(ym[1]),parseInt(ym[2])-1,parseInt(ym[3]));
   return null;
 }
 function pct(a,b){return b>0?Math.round(a/b*100):0;}
-function mkLeg(id,items){document.getElementById(id).innerHTML=items.map(([l,c,v])=>`<span class="leg-item"><span class="leg-dot" style="background:${c}"></span>${l}${v!==null?`: <strong style="color:#e2f0ff;margin-left:2px">${v}</strong>`:''}</span>`).join('');}
-function mkDonut(canvas,data,labels,colors){return new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed.toLocaleString()}`}}}}});}
+function getDif(uid){return DIFERENCIALES[uid]||0;}
+function getTotalReal(u){return u.precio+u.pc+getDif(u.id);}
 function segBar(el,title,gv,rv,tot,gl,rl){const pG=pct(gv,tot),pR=pct(rv,tot);document.getElementById(el).innerHTML=`<div class="seg-title">${title}</div><div class="seg-track"><div class="seg-g" style="width:${pG}%"><span class="seg-lbl">${fmt(gv)}</span></div><div class="seg-r" style="width:${pR}%"><span class="seg-lbl">${fmt(rv)}</span></div></div><div class="seg-legend"><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#0891b2"></div>${gl} (${pG}%)</div><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#be185d"></div>${rl} (${pR}%)</div></div>`;}
-function segBarC(el,title,gv,rv,tot){const pG=pct(gv,tot),pR=pct(rv,tot);document.getElementById(el).innerHTML=`<div class="seg-title">${title}</div><div class="seg-track"><div style="background:#0891b2;height:100%;width:${pG}%;display:flex;align-items:center;min-width:2px"><span class="seg-lbl">${fmt(gv)}</span></div><div style="background:#fbbf24;height:100%;flex:1;display:flex;align-items:center;justify-content:flex-end"><span class="seg-lbl">${fmt(rv)}</span></div></div><div class="seg-legend"><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#0891b2"></div>Ejecutado (${pG}%)</div><div class="seg-leg-item"><div class="seg-leg-dot" style="background:#fbbf24"></div>Proy. restante (${pR}%)</div></div>`;}
 
 function calcMeses(VV){
   const VF=VV.filter(u=>u.fecha&&parseDate(u.fecha)).sort((a,b)=>parseDate(a.fecha)-parseDate(b.fecha));
@@ -499,30 +541,41 @@ function calcMeses(VV){
   return Math.max(1,Math.ceil((new Date()-parseDate(VF[0].fecha))/(1000*60*60*24*30.44)));
 }
 
+function guardarDiferencial(uid,val){
+  const n=parseFloat(val);
+  if(isNaN(n)||n===0){delete DIFERENCIALES[uid];}
+  else{DIFERENCIALES[uid]=n;}
+  try{localStorage.setItem('sr_diferenciales',JSON.stringify(DIFERENCIALES));}catch(e){}
+  renderAll();
+  // Re-focus the input after render
+  setTimeout(()=>{
+    const inp=document.getElementById('dif-'+uid);
+    if(inp){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
+  },50);
+}
+
 function renderAll(){
   const VV=UU.filter(u=>u.est==='Vendida');
   const DD=UU.filter(u=>u.est==='Disponible');
   const CP={};COCHERAS_DATA.forEach(c=>CP[c.id]=c.precio);
 
-  // Total vendido = precio unidades vendidas + precio cocheras vendidas (excluye "Incluida")
   const cochVendIds=VV.filter(u=>u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
   const precioCochVend=COCHERAS_DATA.filter(c=>cochVendIds.includes(c.id)).reduce((s,c)=>s+c.precio,0);
-  const TV=VV.reduce((s,u)=>s+u.precio,0)+precioCochVend;
+
+  // Total vendido CON diferenciales
+  const sumDif=VV.reduce((s,u)=>s+getDif(u.id),0);
+  const TV=VV.reduce((s,u)=>s+u.precio,0)+precioCochVend+sumDif;
   const TC=VV.reduce((s,u)=>s+u.cob,0);
   const TP=TV-TC;
 
-  // Total proyecto = suma TODOS los precios de unidades + suma TODOS los precios de cocheras
   const TOTAL_U=UU.reduce((s,u)=>s+u.precio,0);
   const TOTAL_C=COCHERAS_DATA.reduce((s,c)=>s+c.precio,0);
-  const TPROY=TOTAL_U+TOTAL_C;
+  const TPROY=TOTAL_U+TOTAL_C+sumDif;
   const RESTA=TPROY-TV;
 
-  // PM2 vendido: suma precio unidades vendidas (SIN cochera) / suma m2 vendidos
   const sumPrecioVend=VV.reduce((s,u)=>s+u.precio,0);
   const sumM2Vend=VV.reduce((s,u)=>s+u.m2,0);
   const PM2V=sumM2Vend>0?Math.round(sumPrecioVend/sumM2Vend):0;
-
-  // PM2 proyecto: suma precio TODAS las unidades (SIN cocheras) / suma m2 total
   const sumM2Total=UU.reduce((s,u)=>s+u.m2,0);
   const PM2T=sumM2Total>0?Math.round(TOTAL_U/sumM2Total):0;
 
@@ -554,10 +607,10 @@ function renderAll(){
     <div class="summary-row" style="margin-top:4px"><span class="summary-key">Total vendido</span><span class="summary-val" style="font-size:12px">${fmt(TV)}</span></div>
     <div class="summary-row" style="margin-top:2px"><span class="summary-key">Total proyecto</span><span class="summary-val" style="font-size:12px;color:#38bdf8">${fmt(TPROY)}</span></div>
     <div class="summary-row" style="margin-top:2px;border-top:1px solid #1a3a5c;padding-top:5px"><span class="summary-key">Resta vender</span><span class="summary-val" style="font-size:12px;color:#f87171">${fmt(RESTA)}</span></div>
+    ${sumDif!==0?`<div class="summary-row" style="margin-top:2px"><span class="summary-key">Diferencial USD acumulado</span><span class="summary-val" style="font-size:12px;color:${sumDif>=0?'#34d399':'#f87171'}">${sumDif>=0?'+':''}${fmt(sumDif)}</span></div>`:''}
   `;
 
-  // donuts eliminados — info ya está en KPI cards
-
+  // Scatter chart
   const ML=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const VF=VV.filter(u=>u.fecha&&parseDate(u.fecha)).sort((a,b)=>parseDate(a.fecha)-parseDate(b.fecha));
   if(VF.length>0){
@@ -569,11 +622,46 @@ function renderAll(){
     scatterC=new Chart(document.getElementById('chart-scatter'),{type:'scatter',data:{datasets:[{data:SD,backgroundColor:'#fbbf24',pointRadius:6,pointHoverRadius:8,pointBorderColor:'#0a1628',pointBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return[`${d.label}`,`${d.fecha}`,`Nº${d.y}`];}}}},scales:{x:{title:{display:true,text:'Meses desde primera venta',color:'#38bdf8',font:{size:10}},min:0,max:TMES2,ticks:{color:'#38bdf8',font:{size:9},stepSize:1,maxRotation:45,callback:v=>{const d=new Date(P1);d.setMonth(d.getMonth()+v);return ML[d.getMonth()]+"'"+d.getFullYear().toString().slice(2);}},grid:{color:'rgba(26,58,92,0.6)'}},y:{min:0,max:VV.length+1,ticks:{color:'#38bdf8',font:{size:10},stepSize:1,precision:0},grid:{color:'rgba(26,58,92,0.6)'}}}}});
   }
 
-  const COMP=VV.map(u=>({n:u.cli,c:u.cob,t:u.precio+u.pc})).sort((a,b)=>b.c/b.t-a.c/a.t);
-  document.getElementById('chart-cobro-wrap').style.height=(COMP.length*44+50)+'px';
-  if(barC)barC.destroy();
-  barC=new Chart(document.getElementById('chart-cobro'),{type:'bar',data:{labels:COMP.map(c=>c.n),datasets:[{label:'Cobrado',data:COMP.map(c=>c.c),backgroundColor:'#0891b2',borderRadius:3,borderSkipped:false},{label:'Pendiente',data:COMP.map(c=>c.t-c.c),backgroundColor:'#1e3a5c',borderRadius:3,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.x)}`}}},scales:{x:{stacked:true,grid:{color:'rgba(26,58,92,0.5)'},ticks:{color:'#38bdf8',font:{size:9},callback:v=>'$'+(v/1000).toFixed(0)+'k'}},y:{stacked:true,grid:{display:false},ticks:{color:'#b0cfe0',font:{size:10}}}}}});
-  document.getElementById('leg-cobro-bar').innerHTML=`<span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#0891b2"></span>Cobrado</span><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#1e3a5c"></span>Pendiente</span>`;
+  // ── COBRO POR COMPRADOR — barras HTML con input diferencial ──
+  const COMP=VV.map(u=>{
+    const dif=getDif(u.id);
+    const totalOrig=u.precio+u.pc;
+    const totalReal=totalOrig+dif;
+    return{id:u.id,n:u.cli,c:u.cob,totalOrig,dif,totalReal,pend:totalReal-u.cob};
+  }).sort((a,b)=>b.c/b.totalReal-a.c/a.totalReal);
+
+  const maxTotal=Math.max(...COMP.map(c=>Math.max(c.totalReal,c.c)));
+  let barsHtml='';
+  COMP.forEach(c=>{
+    const pCob=maxTotal>0?Math.max(1,(c.c/maxTotal)*100):0;
+    const extraDif=c.dif>0?c.dif:0;
+    const pExtra=maxTotal>0?(extraDif/maxTotal)*100:0;
+    const pPend=maxTotal>0?Math.max(0,((c.totalReal-c.c-extraDif)/maxTotal)*100):0;
+    const difVal=c.dif!==0?c.dif:'';
+    const difClass=c.dif>0?'positive':c.dif<0?'negative':'';
+    barsHtml+=`<div class="cobro-row">
+      <div class="cobro-name" title="${c.n}">${c.n}</div>
+      <div class="cobro-bar-wrap" title="Cobrado: ${fmt(c.c)} · Pendiente: ${fmt(c.pend)} · Total: ${fmt(c.totalReal)}">
+        <div class="cobro-bar-cobrado" style="width:${pCob}%"><span class="cobro-bar-lbl">$${fmtShort(c.c)}</span></div>
+        ${pExtra>0?`<div class="cobro-bar-extra" style="width:${pExtra}%"></div>`:''}
+        <div class="cobro-bar-pendiente" style="width:${Math.max(0,100-pCob-pExtra)}%"><span class="cobro-bar-lbl">${c.pend>0?'$'+fmtShort(c.pend):''}</span></div>
+      </div>
+      <div class="cobro-dif-wrap">
+        <input type="number" class="cobro-dif-input ${difClass}" id="dif-${c.id}" value="${difVal}" placeholder="0" onchange="guardarDiferencial('${c.id}',this.value)" title="Diferencial USD: positivo si paga más, negativo si paga menos">
+      </div>
+    </div>`;
+  });
+  document.getElementById('cobro-bars').innerHTML=barsHtml;
+
+  // Totals row
+  const sumCobrado=COMP.reduce((s,c)=>s+c.c,0);
+  const sumPendiente=COMP.reduce((s,c)=>s+c.pend,0);
+  const sumDifTotal=COMP.reduce((s,c)=>s+c.dif,0);
+  document.getElementById('cobro-totals').innerHTML=`<div class="cobro-totals">
+    <div class="cobro-total-card"><div class="cobro-total-label">Total cobrado</div><div class="cobro-total-val" style="color:#34d399">${fmt(sumCobrado)}</div></div>
+    <div class="cobro-total-card"><div class="cobro-total-label">Total pendiente</div><div class="cobro-total-val" style="color:#f87171">${fmt(sumPendiente)}</div></div>
+    <div class="cobro-total-card"><div class="cobro-total-label">Diferencial total</div><div class="cobro-total-val" style="color:${sumDifTotal>=0?'#34d399':'#f87171'}">${sumDifTotal>=0?'+':''}${fmt(sumDifTotal)}</div></div>
+  </div>`;
 
   // UNIDADES
   document.getElementById('metrics-unidades').innerHTML=`
@@ -619,7 +707,7 @@ function renderAll(){
   document.getElementById('fin-cards').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="fin-card"><div class="fin-card-label">Total vendido</div><div class="fin-card-value">${fmt(TV)}</div><div class="fin-card-sub">${VV.length} unidades · incluye cocheras vendidas</div></div>
+        <div class="fin-card"><div class="fin-card-label">Total vendido (con dif.)</div><div class="fin-card-value">${fmt(TV)}</div><div class="fin-card-sub">${VV.length} unidades${sumDif!==0?' · dif. '+fmt(sumDif):''}</div></div>
         <div class="fin-card"><div class="fin-card-label">Total cobrado</div><div class="fin-card-value" style="color:#34d399">${fmt(TC)}</div><div class="fin-card-sub">${pct(TC,TV)}% del total vendido</div></div>
         <div class="fin-card"><div class="fin-card-label">Pendiente de cobro</div><div class="fin-card-value" style="color:#f87171">${fmt(TP)}</div><div class="fin-card-sub">${100-pct(TC,TV)}% aún no ingresado</div></div>
       </div>
@@ -635,9 +723,8 @@ function renderAll(){
   document.getElementById('costos-grid').innerHTML=costCard('Costos de obra',COSTOS.resto.ej,COSTOS.resto.pr);
   renderCostosEditor();
   renderSaldoCaja();
-  // Barras de costos eliminadas
 
-  // Rentabilidad — 4 tarjetas: Total venta, Costo total, Margen s/costo, Margen s/inversores
+  // Rentabilidad
   document.getElementById('rentab-grid').innerHTML=`
     <div class="rentab-card"><div class="rentab-label">Total de venta</div><div class="rentab-value" style="color:#e2f0ff;font-size:13px">${fmt(TPROY)}</div><div class="rentab-sub">Vendido + disponible a vender</div></div>
     <div class="rentab-card"><div class="rentab-label">Costo total</div><div class="rentab-value" style="color:#e2f0ff;font-size:13px">${fmt(CT)}</div><div class="rentab-sub">${fmt(CEJ)} ejecutados · ${fmt(CPR)} restante</div></div>
@@ -653,7 +740,22 @@ function renderAll(){
     </div>
   `;
 
-  let ftH='';VV.forEach(u=>{const pt=u.precio+u.pc,pend=pt-u.cob,p=pct(u.cob,pt);ftH+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong><br><span style="font-size:10px;color:#38bdf8">${u.cli}</span></td><td>${fmt(pt)}</td><td style="color:#34d399;font-weight:600">${fmt(u.cob)}</td><td style="color:${pend>0?'#f87171':'#34d399'};font-weight:600">${fmt(pend)}</td><td><span style="font-size:10px;color:#b0cfe0;font-weight:600">${p}%</span></td></tr>`;});
+  // Detalle por unidad vendida — ahora con diferencial
+  let ftH='';VV.forEach(u=>{
+    const dif=getDif(u.id);
+    const totalReal=getTotalReal(u);
+    const pend=totalReal-u.cob;
+    const p=pct(u.cob,totalReal);
+    ftH+=`<tr>
+      <td><strong style="color:#7dd3fc">${u.id}</strong><br><span style="font-size:10px;color:#38bdf8">${u.cli}</span></td>
+      <td>${fmt(u.precio+u.pc)}</td>
+      <td style="color:${dif>0?'#34d399':dif<0?'#f87171':'#2d5a7a'};font-weight:600">${dif!==0?(dif>0?'+':'')+fmt(dif):'—'}</td>
+      <td style="font-weight:600">${fmt(totalReal)}</td>
+      <td style="color:#34d399;font-weight:600">${fmt(u.cob)}</td>
+      <td style="color:${pend>0?'#f87171':'#34d399'};font-weight:600">${fmt(pend)}</td>
+      <td><span style="font-size:10px;color:#b0cfe0;font-weight:600">${p}%</span></td>
+    </tr>`;
+  });
   document.getElementById('finance-tbody').innerHTML=ftH;
 
   renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA);
@@ -664,10 +766,13 @@ function renderAll(){
     if(window._AUI===id){panel.classList.add('hidden');window._AUI=null;return;}
     window._AUI=id;
     const u=UU.find(x=>x.id===id);
-    const pt=u.precio+u.pc,pend=pt-u.cob,p=pt>0?pct(u.cob,pt):0;
+    const dif=getDif(u.id);
+    const totalReal=getTotalReal(u);
+    const pend=totalReal-u.cob;
+    const p=totalReal>0?pct(u.cob,totalReal):0;
     const ct=u.coch&&u.coch.toLowerCase()==='incluida'?'Cochera incluida':u.coch?u.coch:'Sin cochera';
     document.getElementById('detail-title').textContent=`Unidad ${u.id} — ${u.tipo}`;
-    document.getElementById('detail-body').innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${u.est.toLowerCase()}">${u.est}</span></span></div><div class="drow"><span class="dkey">Piso/orientación</span><span class="dval">${u.piso} · ${u.lado}</span></div><div class="drow"><span class="dkey">Superficie</span><span class="dval">${u.m2} m²</span></div><div class="drow"><span class="dkey">Precio unidad</span><span class="dval">${fmt(u.precio)}</span></div>${u.pc?`<div class="drow"><span class="dkey">Precio cochera</span><span class="dval">${fmt(u.pc)}</span></div>`:''}<div class="drow"><span class="dkey">Precio total</span><span class="dval">${fmt(pt)}</span></div><div class="drow"><span class="dkey">Cobrado</span><span class="dval" style="color:#34d399">${fmt(u.cob)} (${p}%)</span></div><div class="drow"><span class="dkey">Pendiente</span><span class="dval" style="color:${pend>0?'#f87171':'#34d399'}">${fmt(pend)}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${u.cli||'—'}</span></div><div class="drow"><span class="dkey">Fecha</span><span class="dval">${u.fecha||'—'}</span></div><div class="drow"><span class="dkey">Cochera</span><span class="dval">${ct}</span></div><div class="drow"><span class="dkey">Baulera</span><span class="dval">${u.bau||'Sin asignar'}</span></div>`;
+    document.getElementById('detail-body').innerHTML=`<div class="drow"><span class="dkey">Estado</span><span class="dval"><span class="badge ${u.est.toLowerCase()}">${u.est}</span></span></div><div class="drow"><span class="dkey">Piso/orientación</span><span class="dval">${u.piso} · ${u.lado}</span></div><div class="drow"><span class="dkey">Superficie</span><span class="dval">${u.m2} m²</span></div><div class="drow"><span class="dkey">Precio unidad</span><span class="dval">${fmt(u.precio)}</span></div>${u.pc?`<div class="drow"><span class="dkey">Precio cochera</span><span class="dval">${fmt(u.pc)}</span></div>`:''}<div class="drow"><span class="dkey">Precio original</span><span class="dval">${fmt(u.precio+u.pc)}</span></div>${dif!==0?`<div class="drow"><span class="dkey">Diferencial USD</span><span class="dval" style="color:${dif>0?'#34d399':'#f87171'}">${dif>0?'+':''}${fmt(dif)}</span></div>`:''}<div class="drow"><span class="dkey">Total real</span><span class="dval">${fmt(totalReal)}</span></div><div class="drow"><span class="dkey">Cobrado</span><span class="dval" style="color:#34d399">${fmt(u.cob)} (${p}%)</span></div><div class="drow"><span class="dkey">Pendiente</span><span class="dval" style="color:${pend>0?'#f87171':'#34d399'}">${fmt(pend)}</span></div><div class="drow"><span class="dkey">Comprador</span><span class="dval">${u.cli||'—'}</span></div><div class="drow"><span class="dkey">Fecha</span><span class="dval">${u.fecha||'—'}</span></div><div class="drow"><span class="dkey">Cochera</span><span class="dval">${ct}</span></div><div class="drow"><span class="dkey">Baulera</span><span class="dval">${u.bau||'Sin asignar'}</span></div>`;
     panel.classList.remove('hidden');panel.scrollIntoView({behavior:'smooth',block:'nearest'});
   };
 }
@@ -675,20 +780,15 @@ function renderAll(){
 function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
   const el=document.getElementById('coverage-box');
   if(!el)return;
-
-  // Determinar escenario actual (default: solo costos)
   if(window._covScenario===undefined) window._covScenario='solo';
 
   const costosObra=CPR;
-  const deudaSocios=APORTE; // USD 950.000 (lo aportado por socios)
+  const deudaSocios=APORTE;
   const pendienteVendido=TP;
   const saldoCaja=SALDO_CAJA;
 
-  // Total a cubrir según escenario
   const totalACubrir = window._covScenario==='solo' ? costosObra : (costosObra+deudaSocios);
-  // Recursos disponibles SIN nuevas ventas: saldo en caja + pendiente de cobro
   const disponible = saldoCaja + pendienteVendido;
-  // Déficit/excedente
   const gap = totalACubrir - disponible;
   const cubierto = gap<=0;
   const pctCubierto = totalACubrir>0?Math.min(100,Math.round(disponible/totalACubrir*100)):100;
@@ -697,16 +797,14 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
   const cochDisp=COCHERAS_DATA.filter(c=>!vendCochIds.includes(c.id)).sort((a,b)=>b.precio-a.precio);
   const unidDisp=[...DD].sort((a,b)=>b.precio-a.precio);
 
-  // Toggle de escenarios
   const escSolo = window._covScenario==='solo';
   let toggleHtml = `<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-    <button onclick="cambiarEscenarioCobertura('solo')" style="flex:1;min-width:120px;padding:9px 12px;background:${escSolo?'#1a3a5c':'#091525'};border:1px solid ${escSolo?'#38bdf8':'#1a3a5c'};border-radius:8px;color:${escSolo?'#38bdf8':'#38bdf8'};font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Solo costos de obra</button>
-    <button onclick="cambiarEscenarioCobertura('completo')" style="flex:1;min-width:120px;padding:9px 12px;background:${!escSolo?'#1a3a5c':'#091525'};border:1px solid ${!escSolo?'#38bdf8':'#1a3a5c'};border-radius:8px;color:${!escSolo?'#38bdf8':'#38bdf8'};font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Costos + deuda con socios</button>
+    <button onclick="cambiarEscenarioCobertura('solo')" style="flex:1;min-width:120px;padding:9px 12px;background:${escSolo?'#1a3a5c':'#091525'};border:1px solid ${escSolo?'#38bdf8':'#1a3a5c'};border-radius:8px;color:#38bdf8;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Solo costos de obra</button>
+    <button onclick="cambiarEscenarioCobertura('completo')" style="flex:1;min-width:120px;padding:9px 12px;background:${!escSolo?'#1a3a5c':'#091525'};border:1px solid ${!escSolo?'#38bdf8':'#1a3a5c'};border-radius:8px;color:#38bdf8;font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Costos + deuda con socios</button>
   </div>`;
 
   let html=`<div style="background:#091525;border:1px solid ${cubierto?'#34d399':'#f87171'};border-radius:10px;padding:14px;margin-bottom:1.2rem">${toggleHtml}`;
 
-  // Cuatro tarjetas resumen
   const subTotalACubrir = escSolo
     ? `<div style="font-size:10px;color:#2d5a7a;margin-top:2px">costo proyectado restante</div>`
     : `<div style="font-size:10px;color:#2d5a7a;margin-top:2px">${fmt(costosObra)} obra + ${fmt(deudaSocios)} socios</div>`;
@@ -734,7 +832,6 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
     </div>
   </div>`;
 
-  // Barra de progreso
   html+=`<div style="margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;font-size:10px;color:#38bdf8;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">
       <span>Recursos disponibles (caja + pendiente) vs. ${escSolo?'costos':'costos + socios'}</span><span>${pctCubierto}%</span>
@@ -771,16 +868,13 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
     window._covCoch = JSON.parse(cData);
     if(!window._selUnid) window._selUnid = new Set();
     if(!window._selCoch) window._selCoch = new Set();
-
     renderCoverageCards();
 
   } else {
     const excedenteMsg = escSolo
       ? `Con el saldo en caja (${fmt(saldoCaja)}) más los cobros pendientes (${fmt(pendienteVendido)}) cubrís los costos pendientes de obra (${fmt(costosObra)}) con un excedente de ${fmt(Math.abs(gap))}. Cambiá al otro escenario para ver el panorama incluyendo la deuda con socios.`
       : `Recursos disponibles (${fmt(disponible)}) superan los costos de obra (${fmt(costosObra)}) más la deuda con socios (${fmt(deudaSocios)}) por ${fmt(Math.abs(gap))}.`;
-    html+=`<div style="background:#064e3b;border:1px solid #065f46;border-radius:8px;padding:10px 12px;font-size:11px;color:#a7f3d0;line-height:1.6">
-      ${excedenteMsg}
-    </div>`;
+    html+=`<div style="background:#064e3b;border:1px solid #065f46;border-radius:8px;padding:10px 12px;font-size:11px;color:#a7f3d0;line-height:1.6">${excedenteMsg}</div>`;
     html+='</div>';
     el.innerHTML=html;
   }
@@ -810,12 +904,9 @@ function renderCoverageCards(){
   const cubierto = total>=gap;
   const excedente = total-gap;
 
-  // Cards unidades
   elU.innerHTML = unids.map(u=>{
     const sel = selU.has(u.id);
-    return `<div onclick="toggleCovCard('u','${u.id}')" style="
-      cursor:pointer;border-radius:8px;padding:8px 10px;border:2px solid ${sel?'#6ee7b7':'#1a3a5c'};
-      background:${sel?'#064e3b':'#0d1f3c'};transition:all .15s;min-width:90px">
+    return `<div onclick="toggleCovCard('u','${u.id}')" style="cursor:pointer;border-radius:8px;padding:8px 10px;border:2px solid ${sel?'#6ee7b7':'#1a3a5c'};background:${sel?'#064e3b':'#0d1f3c'};transition:all .15s;min-width:90px">
       <div style="font-size:11px;font-weight:700;color:${sel?'#6ee7b7':'#7dd3fc'}">Ud. ${u.id}</div>
       <div style="font-size:10px;color:${sel?'#a7f3d0':'#38bdf8'};margin-top:1px">${u.tipo} · ${u.m2}m²</div>
       <div style="font-size:11px;font-weight:700;color:${sel?'#34d399':'#b0cfe0'};margin-top:3px">${fmt(u.precio)}</div>
@@ -823,43 +914,26 @@ function renderCoverageCards(){
     </div>`;
   }).join('');
 
-  // Cards cocheras
   elC.innerHTML = cochs.map(c=>{
     const sel = selC.has(c.id);
-    return `<div onclick="toggleCovCard('c','${c.id}')" style="
-      cursor:pointer;border-radius:8px;padding:8px 10px;border:2px solid ${sel?'#fbbf24':'#1a3a5c'};
-      background:${sel?'#451a03':'#0d1f3c'};transition:all .15s;min-width:80px">
+    return `<div onclick="toggleCovCard('c','${c.id}')" style="cursor:pointer;border-radius:8px;padding:8px 10px;border:2px solid ${sel?'#fbbf24':'#1a3a5c'};background:${sel?'#451a03':'#0d1f3c'};transition:all .15s;min-width:80px">
       <div style="font-size:11px;font-weight:700;color:${sel?'#fbbf24':'#7dd3fc'}">${c.id}</div>
       <div style="font-size:11px;font-weight:700;color:${sel?'#fde68a':'#b0cfe0'};margin-top:4px">${fmt(c.precio)}</div>
       ${sel?`<div style="font-size:9px;color:#fbbf24;margin-top:2px">✓ seleccionada</div>`:''}
     </div>`;
   }).join('');
 
-  // Totales
   const elT = document.getElementById('coverage-totals');
   if(!elT) return;
 
   let thtml=`<div style="background:#0d1f3c;border:1px solid ${cubierto?'#065f46':'#1a3a5c'};border-radius:8px;padding:12px">`;
   thtml+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:${(selU.size+selC.size)>0?'12px':'0'}">
-    <div>
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">Depts. seleccionados</div>
-      <div style="font-size:14px;font-weight:700;color:#6ee7b7">${selU.size} <span style="font-size:10px;color:#38bdf8">· ${fmt(sumU)}</span></div>
-    </div>
-    <div>
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">Cocheras selec.</div>
-      <div style="font-size:14px;font-weight:700;color:#fbbf24">${selC.size} <span style="font-size:10px;color:#38bdf8">· ${fmt(sumC)}</span></div>
-    </div>
-    <div>
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">Total cubierto</div>
-      <div style="font-size:14px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${fmt(total)}</div>
-    </div>
-    <div>
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">${cubierto?'Excedente':'Falta cubrir'}</div>
-      <div style="font-size:14px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${cubierto?'+':''}${fmt(excedente)}</div>
-    </div>
+    <div><div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">Depts. seleccionados</div><div style="font-size:14px;font-weight:700;color:#6ee7b7">${selU.size} <span style="font-size:10px;color:#38bdf8">· ${fmt(sumU)}</span></div></div>
+    <div><div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">Cocheras selec.</div><div style="font-size:14px;font-weight:700;color:#fbbf24">${selC.size} <span style="font-size:10px;color:#38bdf8">· ${fmt(sumC)}</span></div></div>
+    <div><div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">Total cubierto</div><div style="font-size:14px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${fmt(total)}</div></div>
+    <div><div style="font-size:9px;color:#38bdf8;text-transform:uppercase;font-weight:600;margin-bottom:3px">${cubierto?'Excedente':'Falta cubrir'}</div><div style="font-size:14px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${cubierto?'+':''}${fmt(excedente)}</div></div>
   </div>`;
 
-  // Barra de progreso de selección
   if(gap>0){
     const pctSel=Math.min(100,Math.round(total/gap*100));
     thtml+=`<div style="height:8px;border-radius:4px;background:#091525;overflow:hidden;border:1px solid #1a3a5c">
@@ -870,134 +944,14 @@ function renderCoverageCards(){
       ${cubierto?`<span style="color:#34d399;font-weight:600">✓ Déficit cubierto</span>`:`<span style="color:#f87171">Faltan ${fmt(gap-total)}</span>`}
     </div>`;
   }
-
   thtml+='</div>';
   elT.innerHTML=thtml;
 }
 
 function toggleCovCard(type, id){
-  if(type==='u'){
-    if(window._selUnid.has(id)) window._selUnid.delete(id);
-    else window._selUnid.add(id);
-  } else {
-    if(window._selCoch.has(id)) window._selCoch.delete(id);
-    else window._selCoch.add(id);
-  }
+  if(type==='u'){if(window._selUnid.has(id))window._selUnid.delete(id);else window._selUnid.add(id);}
+  else{if(window._selCoch.has(id))window._selCoch.delete(id);else window._selCoch.add(id);}
   renderCoverageCards();
-}
-
-function updateMix(gap, totalUnid, totalCoch){
-  const pctCoch = parseInt(document.getElementById('mix-slider')?.value||50)/100;
-  const pctUnid = 1 - pctCoch;
-
-  const vendCochIds=UU.filter(u=>u.est==='Vendida'&&u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
-  const cochDisp=COCHERAS_DATA.filter(c=>!vendCochIds.includes(c.id)).sort((a,b)=>b.precio-a.precio);
-  const unidDisp=UU.filter(u=>u.est==='Disponible').sort((a,b)=>b.precio-a.precio);
-
-  // Cuánto del déficit cubre cada tipo
-  const gapUnid = Math.round(gap * pctUnid);
-  const gapCoch = gap - gapUnid;
-
-  // Seleccionar unidades reales hasta cubrir gapUnid
-  const selUnid=[];
-  let acumUnid=0;
-  for(const u of unidDisp){
-    if(acumUnid>=gapUnid) break;
-    selUnid.push(u);
-    acumUnid+=u.precio;
-  }
-
-  // Seleccionar cocheras reales hasta cubrir gapCoch
-  const selCoch=[];
-  let acumCoch=0;
-  for(const c of cochDisp){
-    if(acumCoch>=gapCoch) break;
-    selCoch.push(c);
-    acumCoch+=c.precio;
-  }
-
-  const totalCubierto=acumUnid+acumCoch;
-  const excedente=totalCubierto-gap;
-  const alcanza=selUnid.length<=unidDisp.length&&selCoch.length<=cochDisp.length;
-
-  let html='';
-
-  // Resumen mix
-  html+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:10px;text-align:center">
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px">Departamentos a vender</div>
-      <div style="font-size:20px;font-weight:700;color:#6ee7b7">${selUnid.length}</div>
-      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${fmt(acumUnid)} total</div>
-    </div>
-    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:10px;text-align:center">
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px">Cocheras a vender</div>
-      <div style="font-size:20px;font-weight:700;color:#fbbf24">${selCoch.length}</div>
-      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${fmt(acumCoch)} total</div>
-    </div>
-    <div style="background:#0d1f3c;border:1px solid ${alcanza?'#065f46':'#7f1d1d'};border-radius:8px;padding:10px;text-align:center">
-      <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:4px">Total cubierto</div>
-      <div style="font-size:20px;font-weight:700;color:${alcanza?'#34d399':'#f87171'}">${fmt(totalCubierto)}</div>
-      <div style="font-size:10px;color:${excedente>=0?'#34d399':'#f87171'};margin-top:2px">${excedente>=0?'Excedente: +'+fmt(excedente):'Faltan: '+fmt(Math.abs(excedente))}</div>
-    </div>
-  </div>`;
-
-  // Tablas lado a lado
-  html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">`;
-
-  // Tabla departamentos
-  if(selUnid.length>0){
-    html+=`<div><div style="font-size:9px;font-weight:700;color:#6ee7b7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Departamentos</div>
-    <table style="width:100%;border-collapse:collapse;font-size:11px">
-      <thead><tr>
-        <th style="text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Unidad</th>
-        <th style="text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Tipo</th>
-        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Precio</th>
-        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Acumulado</th>
-      </tr></thead><tbody>`;
-    let runU=0;
-    selUnid.forEach(u=>{
-      runU+=u.precio;
-      html+=`<tr>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#7dd3fc;font-weight:600">${u.id}</td>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#b0cfe0">${u.tipo} · ${u.m2}m²</td>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#6ee7b7;font-weight:600;text-align:right">${fmt(u.precio)}</td>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#38bdf8;text-align:right">${fmt(runU)}</td>
-      </tr>`;
-    });
-    html+=`<tr><td colspan="2" style="padding:5px 6px;font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase">Total depts.</td>
-      <td colspan="2" style="padding:5px 6px;text-align:right;font-weight:700;color:#6ee7b7">${fmt(acumUnid)}</td></tr>`;
-    html+=`</tbody></table></div>`;
-  } else {
-    html+=`<div style="display:flex;align-items:center;justify-content:center;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:20px;font-size:11px;color:#38bdf8">Sin departamentos en este mix</div>`;
-  }
-
-  // Tabla cocheras
-  if(selCoch.length>0){
-    html+=`<div><div style="font-size:9px;font-weight:700;color:#fbbf24;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Cocheras</div>
-    <table style="width:100%;border-collapse:collapse;font-size:11px">
-      <thead><tr>
-        <th style="text-align:left;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Cochera</th>
-        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Precio</th>
-        <th style="text-align:right;font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;padding:5px 6px;border-bottom:1px solid #1a3a5c">Acumulado</th>
-      </tr></thead><tbody>`;
-    let runC=0;
-    selCoch.forEach(c=>{
-      runC+=c.precio;
-      html+=`<tr>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#fbbf24;font-weight:600">${c.id}</td>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#6ee7b7;font-weight:600;text-align:right">${fmt(c.precio)}</td>
-        <td style="padding:5px 6px;border-bottom:1px solid #132d47;color:#38bdf8;text-align:right">${fmt(runC)}</td>
-      </tr>`;
-    });
-    html+=`<tr><td style="padding:5px 6px;font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase">Total coch.</td>
-      <td colspan="2" style="padding:5px 6px;text-align:right;font-weight:700;color:#fbbf24">${fmt(acumCoch)}</td></tr>`;
-    html+=`</tbody></table></div>`;
-  } else {
-    html+=`<div style="display:flex;align-items:center;justify-content:center;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:20px;font-size:11px;color:#38bdf8">Sin cocheras en este mix</div>`;
-  }
-
-  html+=`</div>`;
-  document.getElementById('mix-result').innerHTML=html;
 }
 
 function updateSim(){
@@ -1010,7 +964,8 @@ function updateSim(){
   const CT_SIM=CT_BASE*(1+dCostos);
   const TOTAL_U=UU.reduce((s,u)=>s+u.precio,0);
   const TOTAL_C=COCHERAS_DATA.reduce((s,c)=>s+c.precio,0);
-  const TPROY_BASE=TOTAL_U+TOTAL_C;
+  const sumDif=UU.filter(u=>u.est==='Vendida').reduce((s,u)=>s+getDif(u.id),0);
+  const TPROY_BASE=TOTAL_U+TOTAL_C+sumDif;
   const TPROY_SIM=TPROY_BASE*(1+dPrecios);
   const MAR_SIM=TPROY_SIM-CT_SIM;
   const MAR_BASE=TPROY_BASE-CT_BASE;
@@ -1018,50 +973,24 @@ function updateSim(){
   const delta=MAR_SIM-MAR_BASE;
 
   document.getElementById('sim-results').innerHTML=`
-    <div class="sim-res-card">
-      <div class="sim-res-label">Costo total simulado</div>
-      <div class="sim-res-val" style="color:#fbbf24">${fmt(CT_SIM)}</div>
-      <div class="sim-res-delta" style="color:${dCostos>=0?'#f87171':'#34d399'}">${dCostos>=0?'+':''}${fmt(CT_SIM-CT_BASE)} vs. base</div>
-    </div>
-    <div class="sim-res-card">
-      <div class="sim-res-label">Venta total simulada</div>
-      <div class="sim-res-val" style="color:#7dd3fc">${fmt(TPROY_SIM)}</div>
-      <div class="sim-res-delta" style="color:${dPrecios>=0?'#34d399':'#f87171'}">${dPrecios>=0?'+':''}${fmt(TPROY_SIM-TPROY_BASE)} vs. base</div>
-    </div>
-    <div class="sim-res-card">
-      <div class="sim-res-label">Margen simulado s/costo</div>
-      <div class="sim-res-val" style="color:${MAR_SIM>=0?'#34d399':'#f87171'}">${fmt(MAR_SIM)}</div>
-      <div class="sim-res-delta" style="color:${delta>=0?'#34d399':'#f87171'}">${delta>=0?'+':''}${fmt(delta)} vs. base &nbsp;·&nbsp; ${pct(MAR_SIM,TPROY_SIM)}%</div>
-    </div>
-    <div class="sim-res-card">
-      <div class="sim-res-label">Margen simulado s/socios</div>
-      <div class="sim-res-val" style="color:${MAR_SOC_SIM>=0?'#34d399':'#f87171'}">${MAR_SOC_SIM}%</div>
-      <div class="sim-res-delta" style="color:#38bdf8">${fmt(MAR_SIM)} / ${fmt(APORTE)}</div>
-    </div>
+    <div class="sim-res-card"><div class="sim-res-label">Costo total simulado</div><div class="sim-res-val" style="color:#fbbf24">${fmt(CT_SIM)}</div><div class="sim-res-delta" style="color:${dCostos>=0?'#f87171':'#34d399'}">${dCostos>=0?'+':''}${fmt(CT_SIM-CT_BASE)} vs. base</div></div>
+    <div class="sim-res-card"><div class="sim-res-label">Venta total simulada</div><div class="sim-res-val" style="color:#7dd3fc">${fmt(TPROY_SIM)}</div><div class="sim-res-delta" style="color:${dPrecios>=0?'#34d399':'#f87171'}">${dPrecios>=0?'+':''}${fmt(TPROY_SIM-TPROY_BASE)} vs. base</div></div>
+    <div class="sim-res-card"><div class="sim-res-label">Margen simulado s/costo</div><div class="sim-res-val" style="color:${MAR_SIM>=0?'#34d399':'#f87171'}">${fmt(MAR_SIM)}</div><div class="sim-res-delta" style="color:${delta>=0?'#34d399':'#f87171'}">${delta>=0?'+':''}${fmt(delta)} vs. base &nbsp;·&nbsp; ${pct(MAR_SIM,TPROY_SIM)}%</div></div>
+    <div class="sim-res-card"><div class="sim-res-label">Margen simulado s/socios</div><div class="sim-res-val" style="color:${MAR_SOC_SIM>=0?'#34d399':'#f87171'}">${MAR_SOC_SIM}%</div><div class="sim-res-delta" style="color:#38bdf8">${fmt(MAR_SIM)} / ${fmt(APORTE)}</div></div>
   `;
 
-  // Tabla de precios simulados para unidades y cocheras disponibles
   const DD=UU.filter(u=>u.est==='Disponible');
   const cochVendIds=UU.filter(u=>u.est==='Vendida'&&u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
   const cochDisp=COCHERAS_DATA.filter(c=>!cochVendIds.includes(c.id));
-
   let tablaHTML='';
   if(dPrecios!==0){
     tablaHTML+=`<div class="sim-section-label">Departamentos disponibles — nuevos precios simulados</div>`;
     tablaHTML+=`<table class="sim-table"><thead><tr><th>Unidad</th><th>Tipo</th><th>m²</th><th>Precio actual</th><th>Precio simulado</th><th>Diferencia</th></tr></thead><tbody>`;
-    DD.forEach(u=>{
-      const ps=Math.round(u.precio*(1+dPrecios));
-      const diff=ps-u.precio;
-      tablaHTML+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong></td><td>${u.tipo}</td><td>${u.m2}</td><td>${fmt(u.precio)}</td><td style="color:#34d399;font-weight:600">${fmt(ps)}</td><td style="color:${diff>=0?'#34d399':'#f87171'}">${diff>=0?'+':''}${fmt(diff)}</td></tr>`;
-    });
+    DD.forEach(u=>{const ps=Math.round(u.precio*(1+dPrecios));const diff=ps-u.precio;tablaHTML+=`<tr><td><strong style="color:#7dd3fc">${u.id}</strong></td><td>${u.tipo}</td><td>${u.m2}</td><td>${fmt(u.precio)}</td><td style="color:#34d399;font-weight:600">${fmt(ps)}</td><td style="color:${diff>=0?'#34d399':'#f87171'}">${diff>=0?'+':''}${fmt(diff)}</td></tr>`;});
     tablaHTML+=`</tbody></table>`;
     tablaHTML+=`<div class="sim-section-label" style="margin-top:14px">Cocheras disponibles — nuevos precios simulados</div>`;
     tablaHTML+=`<table class="sim-table"><thead><tr><th>Cochera</th><th>Precio actual</th><th>Precio simulado</th><th>Diferencia</th></tr></thead><tbody>`;
-    cochDisp.forEach(c=>{
-      const ps=Math.round(c.precio*(1+dPrecios));
-      const diff=ps-c.precio;
-      tablaHTML+=`<tr><td><strong style="color:#fbbf24">${c.id}</strong></td><td>${fmt(c.precio)}</td><td style="color:#34d399;font-weight:600">${fmt(ps)}</td><td style="color:${diff>=0?'#34d399':'#f87171'}">${diff>=0?'+':''}${fmt(diff)}</td></tr>`;
-    });
+    cochDisp.forEach(c=>{const ps=Math.round(c.precio*(1+dPrecios));const diff=ps-c.precio;tablaHTML+=`<tr><td><strong style="color:#fbbf24">${c.id}</strong></td><td>${fmt(c.precio)}</td><td style="color:#34d399;font-weight:600">${fmt(ps)}</td><td style="color:${diff>=0?'#34d399':'#f87171'}">${diff>=0?'+':''}${fmt(diff)}</td></tr>`;});
     tablaHTML+=`</tbody></table>`;
   }
   document.getElementById('sim-precios-tabla').innerHTML=tablaHTML;
@@ -1070,84 +999,51 @@ function updateSim(){
 function renderCostosEditor(){
   const el=document.getElementById('costos-editor');
   if(!el)return;
-  const total = COSTOS.terreno.ej + COSTOS.terreno.pr + COSTOS.resto.ej + COSTOS.resto.pr;
-  const ejecutado = COSTOS.terreno.ej + COSTOS.resto.ej;
-  const restante = COSTOS.terreno.pr + COSTOS.resto.pr;
-  el.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
-      <label style="font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo total proyectado (USD)</label>
-      <input type="number" id="in-total" value="${total}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#e2f0ff;font-size:13px;font-weight:600;font-family:inherit">
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
-      <label style="font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo ya ejecutado (USD)</label>
-      <input type="number" id="in-ejec" value="${ejecutado}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#34d399;font-size:13px;font-weight:600;font-family:inherit">
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
-      <label style="font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo que falta ejecutar (USD)</label>
-      <input type="number" id="in-rest" value="${restante}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#fbbf24;font-size:13px;font-weight:600;font-family:inherit">
-    </div>
+  const total=COSTOS.terreno.ej+COSTOS.terreno.pr+COSTOS.resto.ej+COSTOS.resto.pr;
+  const ejecutado=COSTOS.terreno.ej+COSTOS.resto.ej;
+  const restante=COSTOS.terreno.pr+COSTOS.resto.pr;
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center"><label style="font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo total proyectado (USD)</label><input type="number" id="in-total" value="${total}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#e2f0ff;font-size:13px;font-weight:600;font-family:inherit"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center"><label style="font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo ya ejecutado (USD)</label><input type="number" id="in-ejec" value="${ejecutado}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#34d399;font-size:13px;font-weight:600;font-family:inherit"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center"><label style="font-size:10px;color:#38bdf8;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Costo que falta ejecutar (USD)</label><input type="number" id="in-rest" value="${restante}" style="padding:6px 10px;background:#0d1f3c;border:1px solid #1a3a5c;border-radius:6px;color:#fbbf24;font-size:13px;font-weight:600;font-family:inherit"></div>
   `;
 }
 function guardarCostos(){
-  let t = parseFloat(document.getElementById('in-total').value) || 0;
-  let e = parseFloat(document.getElementById('in-ejec').value) || 0;
-  let r = parseFloat(document.getElementById('in-rest').value) || 0;
-  // Reconciliar: si total no coincide con ej+rest, ajustar
-  const totalVal = document.getElementById('in-total').value.trim();
-  const ejecVal  = document.getElementById('in-ejec').value.trim();
-  const restVal  = document.getElementById('in-rest').value.trim();
-  if(totalVal===''&&ejecVal!==''&&restVal!=='') t = e + r;
-  else if(ejecVal===''&&totalVal!==''&&restVal!=='') e = t - r;
-  else if(restVal===''&&totalVal!==''&&ejecVal!=='') r = t - e;
-  else {
-    // Si todos tienen valor, priorizar Ejecutado + Restante = Total
-    if(Math.abs((e+r)-t)>1){
-      if(!confirm(`Los valores no cuadran: Ejecutado (${e.toLocaleString()}) + Restante (${r.toLocaleString()}) = ${(e+r).toLocaleString()}, pero Total dice ${t.toLocaleString()}.\n\nAceptar = usar Ejecutado + Restante como Total real.\nCancelar = cancelar guardado para corregir.`)){
-        const st=document.getElementById('costos-status');
-        st.textContent='Guardado cancelado'; st.style.color='#f87171';
-        return;
-      }
-      t = e + r;
-    }
-  }
-  // Asignar todo a "resto" (sin separar terreno) para simplificar
-  COSTOS = {terreno:{ej:0,pr:0}, resto:{ej:e, pr:r}};
+  let t=parseFloat(document.getElementById('in-total').value)||0;
+  let e=parseFloat(document.getElementById('in-ejec').value)||0;
+  let r=parseFloat(document.getElementById('in-rest').value)||0;
+  const totalVal=document.getElementById('in-total').value.trim();
+  const ejecVal=document.getElementById('in-ejec').value.trim();
+  const restVal=document.getElementById('in-rest').value.trim();
+  if(totalVal===''&&ejecVal!==''&&restVal!=='') t=e+r;
+  else if(ejecVal===''&&totalVal!==''&&restVal!=='') e=t-r;
+  else if(restVal===''&&totalVal!==''&&ejecVal!=='') r=t-e;
+  else{if(Math.abs((e+r)-t)>1){if(!confirm(`Los valores no cuadran: Ejecutado (${e.toLocaleString()}) + Restante (${r.toLocaleString()}) = ${(e+r).toLocaleString()}, pero Total dice ${t.toLocaleString()}.\n\nAceptar = usar Ejecutado + Restante como Total real.\nCancelar = cancelar guardado para corregir.`)){document.getElementById('costos-status').textContent='Guardado cancelado';document.getElementById('costos-status').style.color='#f87171';return;}t=e+r;}}
+  COSTOS={terreno:{ej:0,pr:0},resto:{ej:e,pr:r}};
   try{localStorage.setItem('sr_costos',JSON.stringify(COSTOS));}catch(err){}
   renderAll();
-  const st=document.getElementById('costos-status');
-  st.textContent='✓ Costos actualizados'; st.style.color='#34d399';
-  setTimeout(()=>{st.textContent='';},3000);
+  const st=document.getElementById('costos-status');st.textContent='✓ Costos actualizados';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
 }
 function resetCostos(){
   if(!confirm('¿Restaurar los costos al valor por defecto?\n(Terreno: USD 560.000 ejecutado · Resto: USD 750.000 ejecutado + USD 1.350.000 proyectado · Saldo caja: 0)'))return;
-  COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
-  SALDO_CAJA=0;
+  COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};SALDO_CAJA=0;
   try{localStorage.removeItem('sr_costos');localStorage.removeItem('sr_saldo_caja');}catch(e){}
   renderAll();
-  const st=document.getElementById('costos-status');
-  st.textContent='✓ Restaurado'; st.style.color='#34d399';
-  setTimeout(()=>{st.textContent='';},3000);
+  const st=document.getElementById('costos-status');st.textContent='✓ Restaurado';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
 }
 function guardarSaldoCaja(){
-  const inp = document.getElementById('in-saldo-caja');
-  const val = parseFloat(inp.value);
-  if(isNaN(val)){
-    const st = document.getElementById('saldo-status');
-    st.textContent = 'Ingresá un número válido'; st.style.color='#f87171';
-    return;
-  }
-  SALDO_CAJA = val;
+  const val=parseFloat(document.getElementById('in-saldo-caja').value);
+  if(isNaN(val)){document.getElementById('saldo-status').textContent='Ingresá un número válido';document.getElementById('saldo-status').style.color='#f87171';return;}
+  SALDO_CAJA=val;
   try{localStorage.setItem('sr_saldo_caja',String(SALDO_CAJA));}catch(e){}
   renderAll();
-  const st = document.getElementById('saldo-status');
-  st.textContent = '✓ Saldo actualizado'; st.style.color='#34d399';
-  setTimeout(()=>{st.textContent='';},3000);
+  const st=document.getElementById('saldo-status');st.textContent='✓ Saldo actualizado';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
 }
 function renderSaldoCaja(){
-  const d = document.getElementById('saldo-caja-display');
-  const i = document.getElementById('in-saldo-caja');
-  if(d) d.textContent = fmt(SALDO_CAJA);
-  if(i) i.value = SALDO_CAJA;
+  const d=document.getElementById('saldo-caja-display');
+  const i=document.getElementById('in-saldo-caja');
+  if(d) d.textContent=fmt(SALDO_CAJA);
+  if(i) i.value=SALDO_CAJA;
 }
 function showTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
@@ -1158,25 +1054,18 @@ function showTab(t){
 
 setupFileInput('csv-unidades','unidades');
 setupFileInput('csv-cocheras','cocheras');
-// Restaurar datos guardados en localStorage
 try{
   const su=localStorage.getItem('sr_unidades');
   const sc=localStorage.getItem('sr_cocheras');
   if(su)UU=JSON.parse(su);
   if(sc)COCHERAS_DATA=JSON.parse(sc);
-  if(su||sc){
-    document.getElementById('csv-status').textContent='Datos guardados cargados';
-    document.getElementById('csv-status').className='csv-status ok';
-  }
+  if(su||sc){document.getElementById('csv-status').textContent='Datos guardados cargados';document.getElementById('csv-status').className='csv-status ok';}
 }catch(e){}
 renderAll();
 
 async function tryFetchCSV(){
   try{
-    const [ru,rc]=await Promise.all([
-      fetch('datos.csv').then(r=>r.ok?r.text():null).catch(()=>null),
-      fetch('cocheras.csv').then(r=>r.ok?r.text():null).catch(()=>null),
-    ]);
+    const [ru,rc]=await Promise.all([fetch('datos.csv').then(r=>r.ok?r.text():null).catch(()=>null),fetch('cocheras.csv').then(r=>r.ok?r.text():null).catch(()=>null)]);
     let loaded=false;
     if(ru){loadUnidadesCSV(parseCSV(ru));loaded=true;}
     if(rc){loadCocherasCSV(parseCSV(rc));loaded=true;}
@@ -1185,45 +1074,21 @@ async function tryFetchCSV(){
 }
 tryFetchCSV();
 
-// ── THEME TOGGLE & CLEAR DATA ──
 function toggleTheme(){
-  const body = document.body;
-  const btn = document.getElementById('theme-btn');
-  if(body.classList.contains('light')){
-    body.classList.remove('light');
-    btn.style.background='#0d1f3c';
-    btn.style.borderColor='#1a3a5c';
-    btn.style.color='#38bdf8';
-    btn.textContent='☀ Claro';
-    localStorage.setItem('theme','dark');
-  } else {
-    body.classList.add('light');
-    btn.style.background='#fff';
-    btn.style.borderColor='#8b5cf6';
-    btn.style.color='#8b5cf6';
-    btn.textContent='☽ Oscuro';
-    localStorage.setItem('theme','light');
-  }
+  const body=document.body;const btn=document.getElementById('theme-btn');
+  if(body.classList.contains('light')){body.classList.remove('light');btn.style.background='#0d1f3c';btn.style.borderColor='#1a3a5c';btn.style.color='#38bdf8';btn.textContent='☀ Claro';localStorage.setItem('theme','dark');}
+  else{body.classList.add('light');btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';localStorage.setItem('theme','light');}
 }
-// Restore saved theme
 function clearSavedData(){
   try{localStorage.removeItem('sr_unidades');localStorage.removeItem('sr_cocheras');}catch(e){}
-  UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
-  COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
+  UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
   renderAll();
-  const st=document.getElementById('csv-status');
-  st.textContent='Datos guardados eliminados — usando datos del repositorio';
-  st.className='csv-status';
+  const st=document.getElementById('csv-status');st.textContent='Datos guardados eliminados — usando datos del repositorio';st.className='csv-status';
 }
 if(localStorage.getItem('theme')==='light'){
   document.body.classList.add('light');
-  document.addEventListener('DOMContentLoaded',()=>{
-    const btn=document.getElementById('theme-btn');
-    if(btn){btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';}
-  });
+  document.addEventListener('DOMContentLoaded',()=>{const btn=document.getElementById('theme-btn');if(btn){btn.style.background='#fff';btn.style.borderColor='#8b5cf6';btn.style.color='#8b5cf6';btn.textContent='☽ Oscuro';}});
 }
-
-
 </script>
 </body>
 </html>
