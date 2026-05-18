@@ -171,7 +171,10 @@ tr:hover td{background:#0d1f3c}
 .cobro-header{display:grid;grid-template-columns:110px 1fr 72px 72px;gap:6px;padding:0 0 6px;border-bottom:1px solid #1a3a5c;margin-bottom:4px}
 .cobro-header span{font-size:9px;font-weight:700;color:#38bdf8;text-transform:uppercase;letter-spacing:.06em}
 .cobro-totals{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #1a3a5c}
-.cobro-total-card{background:#091525;border:1px solid #1a3a5c;border-radius:6px;padding:8px 10px;text-align:center}
+.cobro-total-card{background:#091525;border:1px solid #1a3a5c;border-radius:6px;padding:8px 10px;text-align:center;position:relative;cursor:pointer}
+.cobro-total-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#0d2a4a;border:1px solid #38bdf8;border-radius:8px;padding:10px 12px;font-size:11px;color:#b0cfe0;line-height:1.7;z-index:100;min-width:220px;text-align:left;white-space:normal}
+.cobro-total-tip strong{color:#38bdf8}
+.cobro-total-card.open .cobro-total-tip{display:block}
 .cobro-total-label{font-size:9px;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:3px}
 .cobro-total-val{font-size:13px;font-weight:700}
 .cobro-row-wrap{position:relative;cursor:pointer}
@@ -298,6 +301,8 @@ body.light .cobro-header span{color:#8b5cf6}
 body.light .cobro-row{border-color:#f1f5f9}
 body.light .cobro-total-card{background:#f8fafc;border-color:#e2e8f0}
 body.light .cobro-total-label{color:#64748b}
+body.light .cobro-total-tip{background:#f8fafc;border-color:#8b5cf6;color:#334155}
+body.light .cobro-total-tip strong{color:#8b5cf6}
 body.light .cobro-tip{background:#f8fafc;border-color:#8b5cf6;color:#334155}
 body.light .cobro-tip strong{color:#8b5cf6}
 </style>
@@ -583,6 +588,12 @@ function toggleCobroTip(uid){
   if(!wasOpen) wrap.classList.add('open');
 }
 
+function toggleCobroTotal(el){
+  const wasOpen=el.classList.contains('open');
+  document.querySelectorAll('.cobro-total-card.open').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen) el.classList.add('open');
+}
+
 function renderAll(){
   const VV=UU.filter(u=>u.est==='Vendida');
   const DD=UU.filter(u=>u.est==='Disponible');
@@ -718,16 +729,30 @@ function renderAll(){
   });
   document.getElementById('cobro-bars').innerHTML=barsHtml;
 
-  // Totals row
+  // Totals row with tooltips
   const sumCobrado=COMP.reduce((s,c)=>s+c.c,0);
   const sumPendiente=COMP.reduce((s,c)=>s+c.pend,0);
   const sumDifReal=COMP.reduce((s,c)=>s+c.difR,0);
   const sumDifProy=COMP.reduce((s,c)=>s+c.difP,0);
+
+  const tipCob=COMP.map(c=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${c.n}</span><span style="color:#34d399;font-weight:600">${fmt(c.c)}</span></div>`).join('');
+  const tipPend=COMP.map(c=>{const p=c.pend;return`<div style="display:flex;justify-content:space-between;gap:8px"><span>${c.n}</span><span style="color:${p>0?'#f87171':'#34d399'};font-weight:600">${fmt(p)}</span></div>`;}).join('');
+  const tipDifR=COMP.filter(c=>c.difR!==0).map(c=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${c.n}</span><span style="color:${c.difR>0?'#34d399':'#f87171'};font-weight:600">${c.difR>0?'+':''}${fmt(c.difR)}</span></div>`).join('')||'<div style="color:#2d5a7a">Sin diferenciales cargados</div>';
+  const tipDifP=COMP.filter(c=>c.difP!==0).map(c=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${c.n}</span><span style="color:${c.difP>0?'#34d399':'#f87171'};font-weight:600">${c.difP>0?'+':''}${fmt(c.difP)}</span></div>`).join('')||'<div style="color:#2d5a7a">Sin proyecciones cargadas</div>';
+
   document.getElementById('cobro-totals').innerHTML=`<div class="cobro-totals">
-    <div class="cobro-total-card"><div class="cobro-total-label">Total cobrado</div><div class="cobro-total-val" style="color:#34d399">${fmt(sumCobrado)}</div></div>
-    <div class="cobro-total-card"><div class="cobro-total-label">Total pendiente</div><div class="cobro-total-val" style="color:#f87171">${fmt(sumPendiente)}</div></div>
-    <div class="cobro-total-card"><div class="cobro-total-label">Dif. realizado</div><div class="cobro-total-val" style="color:${sumDifReal>=0?'#34d399':'#f87171'}">${sumDifReal>=0?'+':''}${fmt(sumDifReal)}</div></div>
-    <div class="cobro-total-card"><div class="cobro-total-label">Dif. proyectado</div><div class="cobro-total-val" style="color:${sumDifProy>=0?'#34d399':'#f87171'}">${sumDifProy>=0?'+':''}${fmt(sumDifProy)}</div></div>
+    <div class="cobro-total-card" onclick="toggleCobroTotal(this)"><div class="cobro-total-label">Total cobrado</div><div class="cobro-total-val" style="color:#34d399">${fmt(sumCobrado)}</div>
+      <div class="cobro-total-tip"><div style="margin-bottom:6px">Suma de <strong>USD efectivamente cobrados</strong> a cada comprador (valores reales convertidos al tipo de cambio de cada pago).</div>${tipCob}</div>
+    </div>
+    <div class="cobro-total-card" onclick="toggleCobroTotal(this)"><div class="cobro-total-label">Total pendiente</div><div class="cobro-total-val" style="color:#f87171">${fmt(sumPendiente)}</div>
+      <div class="cobro-total-tip"><div style="margin-bottom:6px"><strong>Precio original + diferencial (real + proy) − cobrado</strong> de cada comprador. Incluye diferenciales reales y proyectados.</div>${tipPend}</div>
+    </div>
+    <div class="cobro-total-card" onclick="toggleCobroTotal(this)"><div class="cobro-total-label">Dif. realizado</div><div class="cobro-total-val" style="color:${sumDifReal>=0?'#34d399':'#f87171'}">${sumDifReal>=0?'+':''}${fmt(sumDifReal)}</div>
+      <div class="cobro-total-tip"><div style="margin-bottom:6px">Diferencial <strong>ya materializado</strong> en USD por ajuste CAC + tipo de cambio. Son montos que ya se cobraron de más o de menos respecto del precio original.</div>${tipDifR}</div>
+    </div>
+    <div class="cobro-total-card" onclick="toggleCobroTotal(this)"><div class="cobro-total-label">Dif. proyectado</div><div class="cobro-total-val" style="color:${sumDifProy>=0?'#34d399':'#f87171'}">${sumDifProy>=0?'+':''}${fmt(sumDifProy)}</div>
+      <div class="cobro-total-tip"><div style="margin-bottom:6px"><strong>Estimación a futuro</strong> del diferencial por cuotas que restan. Es una proyección manual, no un dato firme.</div>${tipDifP}</div>
+    </div>
   </div>`;
 
   // UNIDADES
