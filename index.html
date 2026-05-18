@@ -154,7 +154,7 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:#0d1f3c}
 @media(min-width:600px){
   .tabs{grid-template-columns:repeat(4,1fr)}
-  .kpi-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .metrics3{grid-template-columns:repeat(3,minmax(0,1fr))}
   .floor-sides{flex-direction:row}
   .unit{min-width:100px;max-width:none;flex:none}
@@ -164,6 +164,9 @@ tr:hover td{background:#0d1f3c}
   .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.4rem}
   .charts-row .card{margin-bottom:0}
   .fin-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+}
+@media(min-width:900px){
+  .kpi-grid{grid-template-columns:repeat(6,minmax(0,1fr))
   .costo-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .sim-grid{grid-template-columns:repeat(2,1fr)}
   .sim-results{grid-template-columns:repeat(4,1fr)}
@@ -285,19 +288,13 @@ body.light .csv-status{color:#64748b}
 
   <div class="page active" id="page-resumen">
     <div class="kpi-grid" id="kpi-top"></div>
-    <div class="charts-row">
-      <div class="card">
-        <div class="card-title">Ventas: Unidades + Cocheras</div>
-        <div class="summary-block" id="summary-total"></div>
-        <div class="donut-col">
-          <div><div class="donut-sub-title">Unidades funcionales</div><div style="position:relative;height:110px"><canvas id="donut-unidades"></canvas></div><div id="leg-unidades" class="leg-wrap"></div></div>
-          <div><div class="donut-sub-title">Cocheras</div><div style="position:relative;height:110px"><canvas id="donut-cocheras"></canvas></div><div id="leg-cocheras" class="leg-wrap"></div></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Seguimiento de ventas en el tiempo</div>
-        <div style="position:relative;height:200px"><canvas id="chart-scatter"></canvas></div>
-      </div>
+    <div class="card">
+      <div class="card-title">Ventas: Unidades + Cocheras</div>
+      <div class="summary-block" id="summary-total"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Seguimiento de ventas en el tiempo</div>
+      <div style="position:relative;height:200px"><canvas id="chart-scatter"></canvas></div>
     </div>
     <div class="section-title">Cobro por comprador</div>
     <div class="card">
@@ -334,6 +331,19 @@ body.light .csv-status{color:#64748b}
     <div class="fin-stack" id="fin-cards"></div>
     <div class="seg-wrap" id="bar-vendido"></div>
     <div class="seg-wrap" id="bar-total"></div>
+    <div class="section-title" style="margin-top:1.4rem">Saldo en caja</div>
+    <div style="background:#0d1f3c;border:1px solid #38bdf8;border-radius:10px;padding:14px;margin-bottom:1.2rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="flex:1;min-width:160px">
+        <div style="font-size:10px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:6px">Saldo actual disponible (USD)</div>
+        <div id="saldo-caja-display" style="font-size:24px;font-weight:700;color:#7dd3fc"></div>
+        <div style="font-size:10px;color:#2d5a7a;margin-top:2px">se usa en Cobertura de costos pendientes</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="number" id="in-saldo-caja" placeholder="USD" style="padding:8px 12px;background:#091525;border:1px solid #38bdf8;border-radius:6px;color:#7dd3fc;font-size:14px;font-weight:600;font-family:inherit;width:140px">
+        <button onclick="guardarSaldoCaja()" style="background:#0d2a4a;border:1px solid #38bdf8;color:#38bdf8;border-radius:6px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer">Actualizar saldo</button>
+        <span id="saldo-status" style="font-size:10px;color:#4a7fa5"></span>
+      </div>
+    </div>
     <hr class="divider">
     <div class="section-title" style="margin-top:0">Costos</div>
     <details style="margin-bottom:12px;background:#091525;border:1px solid #38bdf8;border-radius:10px;padding:0">
@@ -354,8 +364,6 @@ body.light .csv-status{color:#64748b}
       </div>
     </details>
     <div class="costo-stack" id="costos-grid"></div>
-    <div class="seg-wrap" id="bar-costos-con"></div>
-    <div class="seg-wrap" id="bar-costos-sin"></div>
     <hr class="divider">
     <div class="section-title" style="margin-top:0">Rentabilidad estimada</div>
     <div class="rentab-stack" id="rentab-grid"></div>
@@ -410,12 +418,15 @@ const DEFAULT_COCHERAS=[
   {id:"C13",precio:27000},{id:"C14",precio:27000},{id:"C15",precio:27000},{id:"C16",precio:27000},
 ];
 let COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
-// Cargar costos personalizados desde localStorage si existen
+let SALDO_CAJA=0;  // saldo actual en caja en USD
+// Cargar costos y saldo personalizados desde localStorage si existen
 try{
   const sc=localStorage.getItem('sr_costos');
   if(sc){const o=JSON.parse(sc);if(o&&o.terreno&&o.resto)COSTOS=o;}
+  const ss=localStorage.getItem('sr_saldo_caja');
+  if(ss!==null&&ss!==''&&!isNaN(parseFloat(ss)))SALDO_CAJA=parseFloat(ss);
 }catch(e){}
-const APORTE=920000;
+const APORTE=950000;
 
 let UU=JSON.parse(JSON.stringify(DEFAULT_UNIDADES));
 let COCHERAS_DATA=JSON.parse(JSON.stringify(DEFAULT_COCHERAS));
@@ -530,6 +541,7 @@ function renderAll(){
   // KPI
   document.getElementById('kpi-top').innerHTML=`
     <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Unidades vendidas</div><div class="kpi-value" style="color:#6ee7b7">${VV.length}/${UU.length}</div><div class="kpi-sub">${pct(VV.length,UU.length)}% del total</div></div>
+    <div class="kpi" style="border-top-color:#6ee7b7"><div class="kpi-label">Cocheras vendidas</div><div class="kpi-value" style="color:#6ee7b7">${CVEND}/${COCHERAS_DATA.length}</div><div class="kpi-sub">${pct(CVEND,COCHERAS_DATA.length)}% del total</div></div>
     <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Precio promedio x m² vendido</div><div class="kpi-value" style="color:#fbbf24;font-size:14px">${fmt(PM2V)}</div><div class="kpi-sub">Precio promedio del total del proyecto: ${fmt(PM2T)}</div></div>
     <div class="kpi" style="border-top-color:#fbbf24"><div class="kpi-label">Velocidad ventas</div><div class="kpi-value" style="color:#fbbf24">${VEL}<span style="font-size:11px;font-weight:400;color:#4a7fa5"> u/mes</span></div><div class="kpi-sub">${VV.length} en ${TMES} meses</div></div>
     <div class="kpi has-tooltip" style="border-top-color:#c084fc" onclick="this.classList.toggle('open')"><div class="kpi-label">Margen de ganancia sobre costo total proyectado</div><div class="kpi-value" style="color:${MARPROY>=0?'#6ee7b7':'#f87171'}">${pct(MARPROY,CT)}%</div><div class="kpi-tooltip">Es la <strong>ganancia proyectada</strong> del proyecto (<strong>${fmt(MARPROY)}</strong>) sobre el <strong>costo total proyectado</strong> (<strong>${fmt(CT)}</strong>).</div></div>
@@ -544,11 +556,7 @@ function renderAll(){
     <div class="summary-row" style="margin-top:2px;border-top:1px solid #1a3a5c;padding-top:5px"><span class="summary-key">Resta vender</span><span class="summary-val" style="font-size:12px;color:#f87171">${fmt(RESTA)}</span></div>
   `;
 
-  if(donutU)donutU.destroy();if(donutC)donutC.destroy();
-  donutU=mkDonut(document.getElementById('donut-unidades'),[VV.length,DD.length],['Vendidas','Disponibles'],['#6ee7b7','#38bdf8']);
-  mkLeg('leg-unidades',[['Vendidas','#6ee7b7',VV.length],['Disp.','#38bdf8',DD.length]]);
-  donutC=mkDonut(document.getElementById('donut-cocheras'),[CVEND,CDISP],['Vendidas','Disponibles'],['#6ee7b7','#38bdf8']);
-  mkLeg('leg-cocheras',[['Vendidas','#6ee7b7',CVEND],['Disp.','#38bdf8',CDISP]]);
+  // donuts eliminados — info ya está en KPI cards
 
   const ML=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const VF=VV.filter(u=>u.fecha&&parseDate(u.fecha)).sort((a,b)=>parseDate(a.fecha)-parseDate(b.fecha));
@@ -624,10 +632,10 @@ function renderAll(){
   segBar('bar-vendido','Cobrado vs. pendiente — sobre total vendido',TC,TP,TV,'Cobrado','Pendiente');
   segBar('bar-total','Cobrado vs. pendiente — sobre total del proyecto',TC,TPROY-TC,TPROY,'Cobrado','Por ingresar');
   function costCard(tit,ej,pr){const tot=ej+pr,p=tot>0?pct(ej,tot):100;return`<div class="costo-card"><div class="costo-title">${tit}</div><div class="crow"><span class="ckey">Ejecutado</span><span class="cval" style="color:#34d399">${fmt(ej)}</span></div><div class="crow"><span class="ckey">Proyectado restante</span><span class="cval" style="color:#fbbf24">${fmt(pr)}</span></div><div class="crow"><span class="ckey">Total</span><span class="cval">${fmt(tot)}</span></div><div class="cbar"><div class="cfill" style="width:${p}%;background:#0891b2"></div></div><div style="font-size:9px;color:#2d5a7a;margin-top:5px">${p}% ejecutado</div></div>`;}
-  document.getElementById('costos-grid').innerHTML=costCard('Terreno',COSTOS.terreno.ej,COSTOS.terreno.pr)+costCard('Resto de costos',COSTOS.resto.ej,COSTOS.resto.pr);
+  document.getElementById('costos-grid').innerHTML=costCard('Costos de obra',COSTOS.resto.ej,COSTOS.resto.pr);
   renderCostosEditor();
-  segBarC('bar-costos-con','Costos ejecutados vs. proyectados — total (incl. terreno)',CEJ,CPR,CT);
-  segBarC('bar-costos-sin','Costos ejecutados vs. proyectados — total (sin terreno)',COSTOS.resto.ej,COSTOS.resto.pr,COSTOS.resto.ej+COSTOS.resto.pr);
+  renderSaldoCaja();
+  // Barras de costos eliminadas
 
   // Rentabilidad — 4 tarjetas: Total venta, Costo total, Margen s/costo, Margen s/inversores
   document.getElementById('rentab-grid').innerHTML=`
@@ -668,41 +676,68 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
   const el=document.getElementById('coverage-box');
   if(!el)return;
 
-  const costosPendientes=CPR;
+  // Determinar escenario actual (default: solo costos)
+  if(window._covScenario===undefined) window._covScenario='solo';
+
+  const costosObra=CPR;
+  const deudaSocios=APORTE; // USD 950.000 (lo aportado por socios)
   const pendienteVendido=TP;
-  const gap=costosPendientes-pendienteVendido;
-  const cubierto=gap<=0;
-  const pctCubierto=costosPendientes>0?Math.min(100,Math.round(pendienteVendido/costosPendientes*100)):100;
+  const saldoCaja=SALDO_CAJA;
+
+  // Total a cubrir según escenario
+  const totalACubrir = window._covScenario==='solo' ? costosObra : (costosObra+deudaSocios);
+  // Recursos disponibles SIN nuevas ventas: saldo en caja + pendiente de cobro
+  const disponible = saldoCaja + pendienteVendido;
+  // Déficit/excedente
+  const gap = totalACubrir - disponible;
+  const cubierto = gap<=0;
+  const pctCubierto = totalACubrir>0?Math.min(100,Math.round(disponible/totalACubrir*100)):100;
 
   const vendCochIds=UU.filter(u=>u.est==='Vendida'&&u.coch&&u.coch.toLowerCase()!=='incluida'&&u.coch!=='').map(u=>u.coch);
   const cochDisp=COCHERAS_DATA.filter(c=>!vendCochIds.includes(c.id)).sort((a,b)=>b.precio-a.precio);
   const unidDisp=[...DD].sort((a,b)=>b.precio-a.precio);
 
-  let html=`<div style="background:#091525;border:1px solid ${cubierto?'#34d399':'#f87171'};border-radius:10px;padding:14px;margin-bottom:1.2rem">`;
+  // Toggle de escenarios
+  const escSolo = window._covScenario==='solo';
+  let toggleHtml = `<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+    <button onclick="cambiarEscenarioCobertura('solo')" style="flex:1;min-width:120px;padding:9px 12px;background:${escSolo?'#1a3a5c':'#091525'};border:1px solid ${escSolo?'#38bdf8':'#1a3a5c'};border-radius:8px;color:${escSolo?'#38bdf8':'#4a7fa5'};font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Solo costos de obra</button>
+    <button onclick="cambiarEscenarioCobertura('completo')" style="flex:1;min-width:120px;padding:9px 12px;background:${!escSolo?'#1a3a5c':'#091525'};border:1px solid ${!escSolo?'#38bdf8':'#1a3a5c'};border-radius:8px;color:${!escSolo?'#38bdf8':'#4a7fa5'};font-size:11px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Costos + deuda con socios</button>
+  </div>`;
 
-  // Tarjetas resumen
-  html+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
-    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
-      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Costos pendientes de pago</div>
-      <div style="font-size:15px;font-weight:700;color:#fbbf24">${fmt(costosPendientes)}</div>
-      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">lo que aún falta pagar</div>
+  let html=`<div style="background:#091525;border:1px solid ${cubierto?'#34d399':'#f87171'};border-radius:10px;padding:14px;margin-bottom:1.2rem">${toggleHtml}`;
+
+  // Cuatro tarjetas resumen
+  const subTotalACubrir = escSolo
+    ? `<div style="font-size:10px;color:#2d5a7a;margin-top:2px">costo proyectado restante</div>`
+    : `<div style="font-size:10px;color:#2d5a7a;margin-top:2px">${fmt(costosObra)} obra + ${fmt(deudaSocios)} socios</div>`;
+
+  html+=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:11px">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">${escSolo?'Costos pendientes':'Costos + socios a cubrir'}</div>
+      <div style="font-size:15px;font-weight:700;color:#fbbf24">${fmt(totalACubrir)}</div>
+      ${subTotalACubrir}
     </div>
-    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
-      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Pendiente de cobro (vendido)</div>
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:11px">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Saldo en caja</div>
+      <div style="font-size:15px;font-weight:700;color:#7dd3fc">${fmt(saldoCaja)}</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">disponible hoy</div>
+    </div>
+    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:11px">
+      <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">Pendiente de cobro</div>
       <div style="font-size:15px;font-weight:700;color:#38bdf8">${fmt(pendienteVendido)}</div>
-      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">de unidades ya vendidas</div>
+      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">de unidades vendidas</div>
     </div>
-    <div style="background:#0d1f3c;border:1px solid #1a3a5c;border-radius:8px;padding:12px">
+    <div style="background:#0d1f3c;border:1px solid ${cubierto?'#065f46':'#7f1d1d'};border-radius:8px;padding:11px">
       <div style="font-size:9px;color:#4a7fa5;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px">${cubierto?'Excedente':'Déficit a cubrir'}</div>
       <div style="font-size:15px;font-weight:700;color:${cubierto?'#34d399':'#f87171'}">${cubierto?'+':''}${fmt(Math.abs(gap))}</div>
-      <div style="font-size:10px;color:#2d5a7a;margin-top:2px">${cubierto?'los cobros pendientes superan los costos':'faltan por ingresar'}</div>
+      <div style="font-size:10px;color:${cubierto?'#34d399':'#f87171'};margin-top:2px">${cubierto?'cubierto con caja + cobros':'falta vender para cubrir'}</div>
     </div>
   </div>`;
 
-  // Barra progreso
+  // Barra de progreso
   html+=`<div style="margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;font-size:10px;color:#4a7fa5;margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">
-      <span>Cobros pendientes vs. costos pendientes</span><span>${pctCubierto}%</span>
+      <span>Recursos disponibles (caja + pendiente) vs. ${escSolo?'costos':'costos + socios'}</span><span>${pctCubierto}%</span>
     </div>
     <div style="height:10px;border-radius:6px;background:#0d1f3c;overflow:hidden;border:1px solid #1a3a5c">
       <div style="height:100%;width:${pctCubierto}%;background:${cubierto?'#34d399':'#38bdf8'};border-radius:6px"></div>
@@ -711,10 +746,9 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
 
   if(!cubierto){
     html+=`<div style="font-size:10px;color:#4a7fa5;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1a3a5c">
-      Seleccioná las unidades y cocheras que cubrirían el déficit
+      Seleccioná las unidades y cocheras que cubrirían el déficit (${fmt(gap)})
     </div>`;
 
-    // Encode data for JS
     const uData = JSON.stringify(unidDisp.map(u=>({id:u.id,tipo:u.tipo,m2:u.m2,precio:u.precio})));
     const cData = JSON.stringify(cochDisp.map(c=>({id:c.id,precio:c.precio})));
 
@@ -732,22 +766,31 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
     html+='</div>';
     el.innerHTML=html;
 
-    // Render cards
     window._covGap = gap;
     window._covUnid = JSON.parse(uData);
     window._covCoch = JSON.parse(cData);
-    window._selUnid = new Set();
-    window._selCoch = new Set();
+    if(!window._selUnid) window._selUnid = new Set();
+    if(!window._selCoch) window._selCoch = new Set();
 
     renderCoverageCards();
 
   } else {
+    const excedenteMsg = escSolo
+      ? `Con el saldo en caja (${fmt(saldoCaja)}) más los cobros pendientes (${fmt(pendienteVendido)}) cubrís los costos pendientes de obra (${fmt(costosObra)}) con un excedente de ${fmt(Math.abs(gap))}. Cambiá al otro escenario para ver el panorama incluyendo la deuda con socios.`
+      : `Recursos disponibles (${fmt(disponible)}) superan los costos de obra (${fmt(costosObra)}) más la deuda con socios (${fmt(deudaSocios)}) por ${fmt(Math.abs(gap))}.`;
     html+=`<div style="background:#064e3b;border:1px solid #065f46;border-radius:8px;padding:10px 12px;font-size:11px;color:#a7f3d0;line-height:1.6">
-      Los cobros pendientes de lo ya vendido (${fmt(pendienteVendido)}) <strong>superan los costos proyectados pendientes</strong> (${fmt(costosPendientes)}) por ${fmt(Math.abs(gap))}. Los costos están cubiertos sin necesidad de nuevas ventas.
+      ${excedenteMsg}
     </div>`;
     html+='</div>';
     el.innerHTML=html;
   }
+}
+
+function cambiarEscenarioCobertura(esc){
+  window._covScenario = esc;
+  window._selUnid = new Set();
+  window._selCoch = new Set();
+  renderAll();
 }
 
 function renderCoverageCards(){
@@ -1076,13 +1119,35 @@ function guardarCostos(){
   setTimeout(()=>{st.textContent='';},3000);
 }
 function resetCostos(){
-  if(!confirm('¿Restaurar los costos al valor por defecto?\n(Terreno: USD 560.000 ejecutado · Resto: USD 750.000 ejecutado + USD 1.350.000 proyectado)'))return;
+  if(!confirm('¿Restaurar los costos al valor por defecto?\n(Terreno: USD 560.000 ejecutado · Resto: USD 750.000 ejecutado + USD 1.350.000 proyectado · Saldo caja: 0)'))return;
   COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
-  try{localStorage.removeItem('sr_costos');}catch(e){}
+  SALDO_CAJA=0;
+  try{localStorage.removeItem('sr_costos');localStorage.removeItem('sr_saldo_caja');}catch(e){}
   renderAll();
   const st=document.getElementById('costos-status');
   st.textContent='✓ Restaurado'; st.style.color='#34d399';
   setTimeout(()=>{st.textContent='';},3000);
+}
+function guardarSaldoCaja(){
+  const inp = document.getElementById('in-saldo-caja');
+  const val = parseFloat(inp.value);
+  if(isNaN(val)){
+    const st = document.getElementById('saldo-status');
+    st.textContent = 'Ingresá un número válido'; st.style.color='#f87171';
+    return;
+  }
+  SALDO_CAJA = val;
+  try{localStorage.setItem('sr_saldo_caja',String(SALDO_CAJA));}catch(e){}
+  renderAll();
+  const st = document.getElementById('saldo-status');
+  st.textContent = '✓ Saldo actualizado'; st.style.color='#34d399';
+  setTimeout(()=>{st.textContent='';},3000);
+}
+function renderSaldoCaja(){
+  const d = document.getElementById('saldo-caja-display');
+  const i = document.getElementById('in-saldo-caja');
+  if(d) d.textContent = fmt(SALDO_CAJA);
+  if(i) i.value = SALDO_CAJA;
 }
 function showTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
