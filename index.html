@@ -388,17 +388,27 @@ body.light .cobro-tip strong{color:#8b5cf6}
     <div class="fin-stack" id="fin-cards"></div>
     <div class="seg-wrap" id="bar-vendido"></div>
     <div class="seg-wrap" id="bar-total"></div>
-    <div class="section-title" style="margin-top:1.4rem">Saldo en caja</div>
-    <div style="background:#0d1f3c;border:1px solid #38bdf8;border-radius:10px;padding:14px;margin-bottom:1.2rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-      <div style="flex:1;min-width:160px">
+    <div class="section-title" style="margin-top:1.4rem">Saldo en caja y deuda con socios</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.2rem">
+      <div style="background:#0d1f3c;border:1px solid #38bdf8;border-radius:10px;padding:14px">
         <div style="font-size:10px;color:#38bdf8;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:6px">Saldo actual disponible (USD)</div>
-        <div id="saldo-caja-display" style="font-size:24px;font-weight:700;color:#7dd3fc"></div>
-        <div style="font-size:10px;color:#2d5a7a;margin-top:2px">se usa en Cobertura de costos pendientes</div>
+        <div id="saldo-caja-display" style="font-size:22px;font-weight:700;color:#7dd3fc;margin-bottom:4px"></div>
+        <div style="font-size:10px;color:#2d5a7a;margin-bottom:8px">se usa en Cobertura de costos pendientes</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="in-saldo-caja" placeholder="USD" style="padding:6px 10px;background:#091525;border:1px solid #1a3a5c;border-radius:6px;color:#7dd3fc;font-size:13px;font-weight:600;font-family:inherit;width:120px">
+          <button onclick="guardarSaldoCaja()" style="background:#0d2a4a;border:1px solid #38bdf8;color:#38bdf8;border-radius:6px;padding:6px 12px;font-size:10px;font-weight:600;cursor:pointer">Guardar</button>
+          <span id="saldo-status" style="font-size:10px;color:#38bdf8"></span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <input type="number" id="in-saldo-caja" placeholder="USD" style="padding:8px 12px;background:#091525;border:1px solid #38bdf8;border-radius:6px;color:#7dd3fc;font-size:14px;font-weight:600;font-family:inherit;width:140px">
-        <button onclick="guardarSaldoCaja()" style="background:#0d2a4a;border:1px solid #38bdf8;color:#38bdf8;border-radius:6px;padding:8px 16px;font-size:11px;font-weight:600;cursor:pointer">Actualizar saldo</button>
-        <span id="saldo-status" style="font-size:10px;color:#38bdf8"></span>
+      <div style="background:#0d1f3c;border:1px solid #c084fc;border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:#c084fc;text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:6px">Deuda actual con socios (USD)</div>
+        <div id="deuda-socios-display" style="font-size:22px;font-weight:700;color:#c4b5fd;margin-bottom:4px"></div>
+        <div style="font-size:10px;color:#2d5a7a;margin-bottom:8px">aporte original: ${fmt(APORTE)} · se usa en Cobertura</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="in-deuda-socios" placeholder="USD" style="padding:6px 10px;background:#091525;border:1px solid #1a3a5c;border-radius:6px;color:#c4b5fd;font-size:13px;font-weight:600;font-family:inherit;width:120px">
+          <button onclick="guardarDeudaSocios()" style="background:#0d2a4a;border:1px solid #c084fc;color:#c084fc;border-radius:6px;padding:6px 12px;font-size:10px;font-weight:600;cursor:pointer">Guardar</button>
+          <span id="deuda-status" style="font-size:10px;color:#c084fc"></span>
+        </div>
       </div>
     </div>
     <hr class="divider">
@@ -476,12 +486,15 @@ const DEFAULT_COCHERAS=[
 ];
 let COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};
 let SALDO_CAJA=0;
+let DEUDA_SOCIOS=920000; // deuda actual con socios (se actualiza manualmente)
 let DIFERENCIALES={}; // {unitId: {real: number, proy: number}}
 try{
   const sc=localStorage.getItem('sr_costos');
   if(sc){const o=JSON.parse(sc);if(o&&o.terreno&&o.resto)COSTOS=o;}
   const ss=localStorage.getItem('sr_saldo_caja');
   if(ss!==null&&ss!==''&&!isNaN(parseFloat(ss)))SALDO_CAJA=parseFloat(ss);
+  const sds=localStorage.getItem('sr_deuda_socios');
+  if(sds!==null&&sds!==''&&!isNaN(parseFloat(sds)))DEUDA_SOCIOS=parseFloat(sds);
   const sd=localStorage.getItem('sr_diferenciales');
   if(sd){
     const parsed=JSON.parse(sd);
@@ -796,6 +809,7 @@ function renderAll(){
   // FINANZAS
   const precioPromCoch=COCHERAS_DATA.length>0?TOTAL_C/COCHERAS_DATA.length:0;
   const potDisp=DD.reduce((s,u)=>s+u.precio,0)+CDISP*precioPromCoch;
+  const TPROY_ORIG=TOTAL_U+TOTAL_C; // sin diferenciales
   document.getElementById('fin-cards').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div style="display:flex;flex-direction:column;gap:10px">
@@ -804,8 +818,17 @@ function renderAll(){
         <div class="fin-card"><div class="fin-card-label">Pendiente de cobro</div><div class="fin-card-value" style="color:#f87171">${fmt(TP)}</div><div class="fin-card-sub">${100-pct(TC,TV)}% aún no ingresado</div></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="fin-card"><div class="fin-card-label">Total de venta (proyecto)</div><div class="fin-card-value">${fmt(TPROY)}</div><div class="fin-card-sub">Vendido + disponible a vender</div></div>
-        <div class="fin-card"><div class="fin-card-label">Disponible a vender</div><div class="fin-card-value" style="color:#7dd3fc">${fmt(potDisp)}</div><div class="fin-card-sub">${DD.length} unidades · ${CDISP} cocheras disponibles</div></div>
+        <div class="fin-card">
+          <div class="fin-card-label">Total de venta (proyecto)</div>
+          <div class="fin-card-value">${fmt(TPROY)}</div>
+          <div class="fin-card-sub">Incluye actualizaciones y proyecciones · se usa para cálculos</div>
+          <div style="border-top:1px solid #1a3a5c;margin-top:8px;padding-top:8px">
+            <div style="font-size:9px;color:#38bdf8;text-transform:uppercase;letter-spacing:.05em;font-weight:600;margin-bottom:3px">A valores originales</div>
+            <div style="font-size:14px;font-weight:700;color:#b0cfe0">${fmt(TPROY_ORIG)}</div>
+            <div class="fin-card-sub">Sin actualizaciones ni proyecciones</div>
+          </div>
+        </div>
+        <div class="fin-card"><div class="fin-card-label">Disponible a vender</div><div class="fin-card-value" style="color:#7dd3fc">${fmt(potDisp)}</div><div class="fin-card-sub">${DD.length} unidades · ${CDISP} cocheras · a valores originales</div></div>
       </div>
     </div>
   `;
@@ -885,7 +908,7 @@ function renderCoverage(TV,TC,TP,CEJ,CPR,CT,DD,CDISP,COCHERAS_DATA){
   if(window._covScenario===undefined) window._covScenario='solo';
 
   const costosObra=CPR;
-  const deudaSocios=APORTE;
+  const deudaSocios=DEUDA_SOCIOS;
   const pendienteVendido=TP;
   const saldoCaja=SALDO_CAJA;
 
@@ -1127,9 +1150,9 @@ function guardarCostos(){
   const st=document.getElementById('costos-status');st.textContent='✓ Costos actualizados';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
 }
 function resetCostos(){
-  if(!confirm('¿Restaurar los costos al valor por defecto?\n(Terreno: USD 560.000 ejecutado · Resto: USD 750.000 ejecutado + USD 1.350.000 proyectado · Saldo caja: 0)'))return;
-  COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};SALDO_CAJA=0;
-  try{localStorage.removeItem('sr_costos');localStorage.removeItem('sr_saldo_caja');}catch(e){}
+  if(!confirm('¿Restaurar los costos al valor por defecto?\n(Terreno: USD 560.000 ejecutado · Resto: USD 750.000 ejecutado + USD 1.350.000 proyectado · Saldo caja: 0 · Deuda socios: 920.000)'))return;
+  COSTOS={terreno:{ej:560000,pr:0},resto:{ej:750000,pr:1350000}};SALDO_CAJA=0;DEUDA_SOCIOS=920000;
+  try{localStorage.removeItem('sr_costos');localStorage.removeItem('sr_saldo_caja');localStorage.removeItem('sr_deuda_socios');}catch(e){}
   renderAll();
   const st=document.getElementById('costos-status');st.textContent='✓ Restaurado';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
 }
@@ -1139,13 +1162,25 @@ function guardarSaldoCaja(){
   SALDO_CAJA=val;
   try{localStorage.setItem('sr_saldo_caja',String(SALDO_CAJA));}catch(e){}
   renderAll();
-  const st=document.getElementById('saldo-status');st.textContent='✓ Saldo actualizado';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
+  const st=document.getElementById('saldo-status');st.textContent='✓ Actualizado';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
+}
+function guardarDeudaSocios(){
+  const val=parseFloat(document.getElementById('in-deuda-socios').value);
+  if(isNaN(val)){document.getElementById('deuda-status').textContent='Ingresá un número válido';document.getElementById('deuda-status').style.color='#f87171';return;}
+  DEUDA_SOCIOS=val;
+  try{localStorage.setItem('sr_deuda_socios',String(DEUDA_SOCIOS));}catch(e){}
+  renderAll();
+  const st=document.getElementById('deuda-status');st.textContent='✓ Actualizado';st.style.color='#34d399';setTimeout(()=>{st.textContent='';},3000);
 }
 function renderSaldoCaja(){
   const d=document.getElementById('saldo-caja-display');
   const i=document.getElementById('in-saldo-caja');
   if(d) d.textContent=fmt(SALDO_CAJA);
   if(i) i.value=SALDO_CAJA;
+  const dd=document.getElementById('deuda-socios-display');
+  const id=document.getElementById('in-deuda-socios');
+  if(dd) dd.textContent=fmt(DEUDA_SOCIOS);
+  if(id) id.value=DEUDA_SOCIOS;
 }
 function showTab(t){
   document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
